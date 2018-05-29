@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="panel.LocationPanel">
+  <grid id="27dc6" binding="LocationParametersPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+    <margin top="0" left="0" bottom="0" right="0"/>
+    <constraints>
+      <xy x="20" y="20" width="1044" height="679"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="f693e" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="etched" title="密码算法选项">
+          <font size="21"/>
+          <title-color color="-4473925"/>
+        </border>
+        <children>
+          <grid id="c8ffb" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="泄露模型">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+            </border>
+            <children>
+              <component id="6fcb7" class="javax.swing.JComboBox" binding="LocationAttackModelCombobox">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <model>
+                    <item value="HW"/>
+                    <item value="Value"/>
+                  </model>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="d3a35" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="中间值操作">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+            </border>
+            <children>
+              <component id="3c19c" class="javax.swing.JComboBox" binding="LocationOperationCombobox">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <model>
+                    <item value="SBOX"/>
+                    <item value="AddRoundKey"/>
+                  </model>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="144fd" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="密码算法">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+            </border>
+            <children>
+              <component id="caf0b" class="javax.swing.JComboBox" binding="LocationAlgorithmCombobox">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <model>
+                    <item value="AES"/>
+                  </model>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="18171" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="etched" title="目标密钥选项">
+          <font size="21"/>
+          <title-color color="-4473925"/>
+        </border>
+        <children>
+          <grid id="1930f" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="子密钥序列">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+            </border>
+            <children>
+              <component id="fb6ec" class="javax.swing.JTextField" binding="LocationKeyIndexTextfield">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <caretColor color="-16777216"/>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <text value="0"/>
+                </properties>
+              </component>
+              <hspacer id="1649f">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+            </children>
+          </grid>
+          <grid id="9b09b" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="子密钥长度">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+            </border>
+            <children>
+              <hspacer id="f39b8">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <component id="b3c7b" class="javax.swing.JTextField" binding="subkey_lengthTextfiled">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <caretColor color="-16777216"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <text value="8"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="5ebd9" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="etched" title="样本曲线配置">
+          <font size="21"/>
+          <title-color color="-4473925"/>
+        </border>
+        <children>
+          <grid id="94d7a" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="样本参数">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+            </border>
+            <children>
+              <component id="6354c" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18"/>
+                  <text value="First:"/>
+                </properties>
+              </component>
+              <component id="811c4" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18"/>
+                  <text value="Number:"/>
+                </properties>
+              </component>
+              <component id="a5e25" class="javax.swing.JTextField" binding="LocationSampleFirstTextfield">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <caretColor color="-16777216"/>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <text value="0"/>
+                </properties>
+              </component>
+              <hspacer id="2a15d">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <component id="c21f4" class="javax.swing.JTextField" binding="LocationSampleNumberTextfield">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <caretColor color="-16777216"/>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <text value="512"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="36d24" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties/>
+            <border type="etched" title="曲线参数">
+              <font size="19"/>
+              <title-color color="-4473925"/>
+              <color color="-15921907"/>
+            </border>
+            <children>
+              <component id="b0250" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18"/>
+                  <text value="First:"/>
+                </properties>
+              </component>
+              <component id="8400f" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18"/>
+                  <text value="Number:"/>
+                </properties>
+              </component>
+              <component id="cf9eb" class="javax.swing.JTextField" binding="LocationCurveFirstTextfield">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <caretColor color="-16777216"/>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <text value="0"/>
+                </properties>
+              </component>
+              <component id="6cbb8" class="javax.swing.JTextField" binding="LocationCurveNumberTextfield">
+                <constraints>
+                  <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="150" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <caretColor color="-16777216"/>
+                  <doubleBuffered value="true"/>
+                  <font name="Microsoft YaHei Light" size="18" style="1"/>
+                  <text value="1000"/>
+                </properties>
+              </component>
+              <hspacer id="6c2d5">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <component id="41a4" class="javax.swing.JLabel" binding="LocationMethodLable">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <font size="23" style="3"/>
+          <foreground color="-1114103"/>
+          <text value="参数配置："/>
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>

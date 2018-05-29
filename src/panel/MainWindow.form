@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="MainWindow">
-  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="panel.MainWindow">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="1328" height="708"/>
@@ -17,11 +17,14 @@
         <properties>
           <autoscrolls value="false"/>
           <doubleBuffered value="true"/>
-          <font name="微软雅黑Monaco" size="20" style="2"/>
+          <font name="微软雅黑Monaco" size="21" style="2"/>
           <inheritsPopupMenu value="false"/>
+          <tabLayoutPolicy value="0"/>
           <tabPlacement value="2"/>
         </properties>
-        <border type="none"/>
+        <border type="etched">
+          <font size="21"/>
+        </border>
         <children>
           <grid id="6ff3e" binding="LocationPanel" layout-manager="GridLayoutManager" row-count="2" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="0" left="0" bottom="0" right="0"/>
@@ -37,7 +40,9 @@
                   <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="定位方法">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="26279" class="javax.swing.JCheckBox" binding="NICVCheckBox" default-binding="true">
                     <constraints>
@@ -88,7 +93,9 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="参数配置">
+                  <font size="23"/>
+                </border>
                 <children/>
               </grid>
               <grid id="a0470" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -97,7 +104,10 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="选项">
+                  <font size="23"/>
+                  <title-color color="-4473925"/>
+                </border>
                 <children>
                   <component id="15917" class="javax.swing.JButton" binding="LocationHelpButton">
                     <constraints>
@@ -139,7 +149,9 @@
                   <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="对齐方法">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="a28b1" class="javax.swing.JCheckBox" binding="StaticAlignCheckBox">
                     <constraints>
@@ -190,7 +202,9 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="参数配置">
+                  <font size="23"/>
+                </border>
                 <children/>
               </grid>
               <grid id="5ac53" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -199,7 +213,9 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="选项">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="3e39c" class="javax.swing.JButton" binding="AlignHelpButton">
                     <constraints>
@@ -241,7 +257,9 @@
                   <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="降噪方法">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="fb5e5" class="javax.swing.JCheckBox" binding="FFTCheckBox" default-binding="true">
                     <constraints>
@@ -319,7 +337,9 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="参数配置">
+                  <font size="23"/>
+                </border>
                 <children/>
               </grid>
               <grid id="5b6be" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -328,7 +348,9 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="选项">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="4f29f" class="javax.swing.JButton" binding="ReduceNoiceHelpButton">
                     <constraints>
@@ -370,7 +392,9 @@
                   <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="降维方法">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="df6fc" class="javax.swing.JCheckBox" binding="PCACheckBox" default-binding="true">
                     <constraints>
@@ -430,7 +454,9 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="参数配置">
+                  <font size="23"/>
+                </border>
                 <children/>
               </grid>
               <grid id="17c58" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -439,7 +465,9 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="选项">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="e200b" class="javax.swing.JButton" binding="ReduceDimensionHelpButton">
                     <constraints>
@@ -481,7 +509,9 @@
                   <grid row="0" column="0" row-span="2" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="标准方法">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="7ef69" class="javax.swing.JCheckBox" binding="zScoreCheckBox" default-binding="true">
                     <constraints>
@@ -523,7 +553,9 @@
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="参数配置">
+                  <font size="23"/>
+                </border>
                 <children/>
               </grid>
               <grid id="f6aaa" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -532,7 +564,9 @@
                   <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="选项">
+                  <font size="23"/>
+                </border>
                 <children>
                   <component id="feb6" class="javax.swing.JButton" binding="NormalizationHelpButton">
                     <constraints>
@@ -574,7 +608,9 @@
                   <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="处理后：">
+                  <font size="21"/>
+                </border>
                 <children>
                   <component id="65fad" class="javax.swing.JLabel" binding="ResultProcessedSNRLabel">
                     <constraints>
@@ -611,7 +647,9 @@
                   <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="处理前：">
+                  <font size="21"/>
+                </border>
                 <children>
                   <component id="b140a" class="javax.swing.JLabel" binding="ResultOriginalSNRLabel">
                     <constraints>
@@ -643,7 +681,9 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
-                <border type="none"/>
+                <border type="etched" title="结果图：">
+                  <font size="23"/>
+                </border>
                 <children/>
               </grid>
             </children>
