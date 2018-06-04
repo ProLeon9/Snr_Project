@@ -3,17 +3,16 @@ package panel;
 import javax.swing.*;
 
 public class LocationPanel{
-    private JComboBox LocationAlgorithmCombobox;
-    private JComboBox LocationOperationCombobox;
-    private JComboBox LocationAttackModelCombobox;
-    private JTextField LocationKeyIndexTextfield;
-    private JTextField LocationSampleFirstTextfield;
-    private JTextField LocationSampleNumberTextfield;
-    private JTextField LocationCurveFirstTextfield;
-    private JTextField LocationCurveNumberTextfield;
-    private JPanel LocationParametersPanel;
-    private JTextField subkey_lengthTextfiled;
-    private JLabel LocationMethodLable;
+    public JComboBox LocationAlgorithmCombobox;
+    public JComboBox LocationOperationCombobox;
+    public JComboBox LocationAttackModelCombobox;
+    public JTextField LocationKeyIndexTextfield;
+    public JTextField LocationSampleFirstTextfield;
+    public JTextField LocationSampleNumberTextfield;
+    public JTextField LocationCurveFirstTextfield;
+    public JTextField LocationCurveNumberTextfield;
+    public JPanel LocationParametersPanel;
+    public JLabel LocationMethodLable;
 
     JPanel getPanel(){
         return this.LocationParametersPanel;
