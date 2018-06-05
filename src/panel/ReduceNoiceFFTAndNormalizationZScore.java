@@ -15,6 +15,10 @@ public class ReduceNoiceFFTAndNormalizationZScore{
     }
 
     void setLable(String method){
-        this.ReduceNoiceOrNormalizationMethodLable.setText(method + this.ReduceNoiceOrNormalizationMethodLable.getText());
+        this.ReduceNoiceOrNormalizationMethodLable.setText(method + "≤Œ ˝≈‰÷√£∫");
+    }
+
+    String getName(){
+        return ReduceNoiceOrNormalizationMethodLable.getText();
     }
 }

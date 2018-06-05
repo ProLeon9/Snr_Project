@@ -16,6 +16,9 @@ public class ReduceDimensionPCAAndLDAAndKPCA{
     }
 
     void setLable(String method){
-        this.ReduceDimensionMethodLable.setText(method + this.ReduceDimensionMethodLable.getText());
+        this.ReduceDimensionMethodLable.setText(method + "≤Œ ˝≈‰÷√£∫");
+    }
+    String getName(){
+        return ReduceDimensionMethodLable.getText();
     }
 }

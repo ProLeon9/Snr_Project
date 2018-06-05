@@ -104,4 +104,54 @@ public class CommonFunctions{
         //rangeAxis.setLabelPaint(Color.BLUE) ; // 字体颜色
         rangeAxis.setTickLabelFont(yfont);
     }
+
+    //求方差、均值、和的函数
+    private static double getSum(double[] inputData){
+        if(inputData == null || inputData.length == 0){
+            return -1;
+        }
+        double sum = 0;
+        for(double anInputData : inputData){
+            sum = sum+anInputData;
+        }
+        return sum;
+    }
+
+    private static double getAverage(double[] inputData){
+        if(inputData == null || inputData.length == 0){
+            return -1;
+        }
+        int len = inputData.length;
+        double result;
+        result = getSum(inputData)/len;
+
+        return result;
+    }
+
+    public static double getVariance(double[] inputData){
+        int count = getCount(inputData);
+        double sqrsum = getSquareSum(inputData);
+        double average = getAverage(inputData);
+        double result;
+        result = (sqrsum-count*average*average)/count;
+        return result;
+    }
+
+    private static int getCount(double[] inputData){
+        if(inputData == null){
+            return -1;
+        }
+        return inputData.length;
+    }
+
+    private static double getSquareSum(double[] inputData){
+        if(inputData == null || inputData.length == 0){
+            return -1;
+        }
+        double sqrsum = 0.0;
+        for(double anInputData : inputData){
+            sqrsum = sqrsum+anInputData*anInputData;
+        }
+        return sqrsum;
+    }
 }

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public abstract class LocationToolBox{
 
-    public ChartPanel resultChartPanel;
+    ChartPanel resultChartPanel;
 
     public abstract ChartPanel excuteLocation(LocationPanel locationPanel, String resultPath) throws IOException;
 

@@ -17,28 +17,20 @@ import java.util.Objects;
 public class SOSD extends LocationToolBox{
     //求中间值所用参数
     private String algorithm;
-    private String operation;
     private String leakageModel;
-    private int model;
-    private int target_subkey;
-    private MiddleValue middleValueToolBox;
-    private int middleValue;
     private int set_num;
     //曲线相关参数
     private int attackSampleNum;
     private int attackSampleStart;
     private int attackCurveStart;
     private int attackCurveNum;
-    private double[] trace;
     //SOSD相关参数
     private int num;
     private int[] num2;
     private double[] sum_power;
     private double[][] E_power;
-    private double[] v_power;
     private double[] result;
     private int bit;
-    private int length;
     //显示进度使用
     private int currentStatus;
 
@@ -53,7 +45,7 @@ public class SOSD extends LocationToolBox{
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\wave.txt"));
         BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\text_in.txt"));
         BufferedReader keyReader = new BufferedReader(new FileReader(resultPath+"\\key.txt"));
-        BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\NICV.txt"));
+        BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\SOSD.txt"));
 
         for(int i = 1; i <= this.attackCurveStart-1; i++){
             curveReader.readLine();
@@ -100,90 +92,35 @@ public class SOSD extends LocationToolBox{
             return -1;
     }
 
-    private void getParametersFromPanel(LocationPanel locationPanel){
-        this.algorithm = (String) locationPanel.LocationAlgorithmCombobox.getSelectedItem();
-        this.operation = (String) locationPanel.LocationOperationCombobox.getSelectedItem();
-        this.leakageModel = (String) locationPanel.LocationAttackModelCombobox.getSelectedItem();
-        this.target_subkey = Integer.parseInt(locationPanel.LocationKeyIndexTextfield.getText());
-        this.attackCurveNum = Integer.parseInt(locationPanel.LocationCurveNumberTextfield.getText());
-        this.attackCurveStart = Integer.parseInt(locationPanel.LocationCurveFirstTextfield.getText());
-        this.attackSampleNum = Integer.parseInt(locationPanel.LocationSampleNumberTextfield.getText());
-        this.attackSampleStart = Integer.parseInt(locationPanel.LocationSampleFirstTextfield.getText());
-    }
-
-    private void convertLeakageModelToInt(){
-        if(Objects.equals(this.leakageModel, "HW")){
-            this.model = 1;
-            this.set_num = 9;
-        }
-        else if(Objects.equals(this.leakageModel, "VALUE")){
-            this.model = 2;
-            this.set_num = 256;
-        }
-    }
-
     //SOSD初始化所需数组
     private void ini(int power_length, int keybit){
         bit = keybit;
-        length = power_length;
         num = 0;
         num2 = new int[keybit];
         sum_power = new double[power_length];
         E_power = new double[keybit][power_length];
-        v_power = new double[power_length];
+        double[] v_power = new double[power_length];
         result = new double[power_length];
     }
-    //求方差、均值、和的函数
-    private static double getSum(double[] inputData){
-        if(inputData == null || inputData.length == 0){
-            return -1;
+
+    private void convertLeakageModelToInt(){
+        if(Objects.equals(this.leakageModel, "HW")){
+            this.set_num = 9;
         }
-        int len = inputData.length;
-        double sum = 0;
-        for(int i = 0; i < len; i++){
-            sum = sum+inputData[i];
+        else if(Objects.equals(this.leakageModel, "VALUE")){
+            this.set_num = 256;
         }
-        return sum;
     }
 
-    private static double getAverage(double[] inputData){
-        if(inputData == null || inputData.length == 0){
-            return -1;
-        }
-        int len = inputData.length;
-        double result;
-        result = getSum(inputData)/len;
-
-        return result;
-    }
-
-    public static double getVariance(double[] inputData){
-        int count = getCount(inputData);
-        double sqrsum = getSquareSum(inputData);
-        double average = getAverage(inputData);
-        double result;
-        result = (sqrsum-count*average*average)/count;
-        return result;
-    }
-
-    private static int getCount(double[] inputData){
-        if(inputData == null){
-            return -1;
-        }
-
-        return inputData.length;
-    }
-
-    private static double getSquareSum(double[] inputData){
-        if(inputData == null || inputData.length == 0){
-            return -1;
-        }
-        int len = inputData.length;
-        double sqrsum = 0.0;
-        for(int i = 0; i < len; i++){
-            sqrsum = sqrsum+inputData[i]*inputData[i];
-        }
-        return sqrsum;
+    private void getParametersFromPanel(LocationPanel locationPanel){
+        this.algorithm = (String) locationPanel.LocationAlgorithmCombobox.getSelectedItem();
+        String operation = (String) locationPanel.LocationOperationCombobox.getSelectedItem();
+        this.leakageModel = (String) locationPanel.LocationAttackModelCombobox.getSelectedItem();
+        int target_subkey = Integer.parseInt(locationPanel.LocationKeyIndexTextfield.getText());
+        this.attackCurveNum = Integer.parseInt(locationPanel.LocationCurveNumberTextfield.getText());
+        this.attackCurveStart = Integer.parseInt(locationPanel.LocationCurveFirstTextfield.getText());
+        this.attackSampleNum = Integer.parseInt(locationPanel.LocationSampleNumberTextfield.getText());
+        this.attackSampleStart = Integer.parseInt(locationPanel.LocationSampleFirstTextfield.getText());
     }
 
     private double[] excuteSOSD(int middle, double[] power){

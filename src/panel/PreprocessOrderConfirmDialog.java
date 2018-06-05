@@ -99,23 +99,23 @@ public class PreprocessOrderConfirmDialog extends JDialog{
 
     private void removeTheRecommendMethod(Set<String> methodSet, boolean[] systemRecomendOption){
         if(systemRecomendOption[1]){
-            methodSet.remove("Static Align");
-            methodSet.remove("DTW Align");
+            methodSet.remove("¾²Ì¬¶ÔÆë");
+            methodSet.remove("¶¯Ì¬¶ÔÆë");
         }
         if(systemRecomendOption[2]){
-            methodSet.remove("FFT ReduceNoice");
-            methodSet.remove("POC ReduceNoice");
-            methodSet.remove("Kalman ReduceNoice");
-            methodSet.remove("SSA ReduceNoice");
-            methodSet.remove("ICA ReduceNoice");
+            methodSet.remove("FFT");
+            methodSet.remove("POC");
+            methodSet.remove("¿¨¶ûÂüÂË²¨");
+            methodSet.remove("SSA");
+            methodSet.remove("ICA");
         }
         if(systemRecomendOption[3]){
-            methodSet.remove("PCA ReduceDimension");
-            methodSet.remove("LDA ReduceDimension");
-            methodSet.remove("KPCA ReduceDimension");
+            methodSet.remove("PCA");
+            methodSet.remove("LDA");
+            methodSet.remove("KPCA");
         }
         if(systemRecomendOption[4]){
-            methodSet.remove("ZScore Normalization");
+            methodSet.remove("Z-Score");
         }
     }
 

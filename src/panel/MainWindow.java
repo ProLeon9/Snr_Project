@@ -1,5 +1,9 @@
 package panel;
 
+import align.AlignFactory;
+import align.AlignToolBox;
+import align.DTW;
+import align.StaticAlign;
 import location.LocationFactory;
 import location.LocationToolBox;
 import org.jfree.chart.ChartPanel;
@@ -75,16 +79,21 @@ public class MainWindow{
 
     private static JFrame frame;
     private static MainWindow mainWindow;
-    private static Set<String> methodSet;   //存放用户选择的预处理方法
-    private static List<String> methodList;   //存放将要使用的预处理方法
-    private static boolean[] systemRecommendOption;   //是否需要系统推荐
-    private static LocationPanel locationPanel; //用于存放location参数
     private static String curvePath;
     private static String matlabPath;
     private static String resultPath;
     private static String keyPath;
     private static String plainPath;
     private static ChartPanel resultChartPanel;
+    private static Set<String> methodSet;   //存放用户选择的预处理方法
+    private static List<String> methodList;   //存放将要使用的预处理方法
+    private static boolean[] systemRecommendOption;   //是否需要系统推荐
+    private static LocationPanel locationPanel; //存放location参数
+    private static List<AlignDTWAndReduceNoicePOC> alignDTWAndReduceNoicePOC; //存放DTW和POC参数
+    private static List<AlignStaticAlign> alignStaticAlign; //存放静态对齐参数
+    private static List<ReduceDimensionPCAAndLDAAndKPCA> reduceDimensionPCAAndLDAAndKPCA; //存放曲线压缩参数
+    private static List<ReduceNoiceFFTAndNormalizationZScore> reduceNoiceFFTAndNormalizationZScores; //存放FFT和标准化参数
+    private static String lastMethod; // 存放上次进行的预处理方法，便于使用下一个方法时找到文件
 
 
     private MainWindow(){
@@ -142,6 +151,10 @@ public class MainWindow{
                 }
                 else{
                     StaticAlignCheckBox.setForeground(new Color(187, 187, 187));
+                    for(AlignStaticAlign element : alignStaticAlign){
+                        if(Objects.equals(element.getName(), "静态对齐参数配置："))
+                            alignStaticAlign.remove(element);
+                    }
                 }
             }
         });
@@ -153,6 +166,10 @@ public class MainWindow{
                 }
                 else{
                     DTWCheckBox.setForeground(new Color(187, 187, 187));
+                    for(AlignDTWAndReduceNoicePOC element : alignDTWAndReduceNoicePOC){
+                        if(Objects.equals(element.getName(), "动态对齐参数配置："))
+                            alignDTWAndReduceNoicePOC.remove(element);
+                    }
                 }
             }
         });
@@ -188,6 +205,10 @@ public class MainWindow{
                 }
                 else{
                     FFTCheckBox.setForeground(new Color(187, 187, 187));
+                    for(ReduceNoiceFFTAndNormalizationZScore element : reduceNoiceFFTAndNormalizationZScores){
+                        if(Objects.equals(element.getName(),"FFT参数配置：" ))
+                            reduceNoiceFFTAndNormalizationZScores.remove(element);
+                    }
                 }
             }
         });
@@ -199,6 +220,10 @@ public class MainWindow{
                 }
                 else{
                     POCCheckBox.setForeground(new Color(187, 187, 187));
+                    for(AlignDTWAndReduceNoicePOC element : alignDTWAndReduceNoicePOC){
+                        if(Objects.equals(element.getName(), "POC参数配置："))
+                            alignDTWAndReduceNoicePOC.remove(element);
+                    }
                 }
             }
         });
@@ -265,6 +290,10 @@ public class MainWindow{
                 }
                 else{
                     PCACheckBox.setForeground(new Color(187, 187, 187));
+                    for(ReduceDimensionPCAAndLDAAndKPCA element : reduceDimensionPCAAndLDAAndKPCA){
+                        if(Objects.equals(element.getName(), "PCA参数配置："))
+                            reduceDimensionPCAAndLDAAndKPCA.remove(element);
+                    }
                 }
             }
         });
@@ -276,6 +305,10 @@ public class MainWindow{
                 }
                 else{
                     LDACheckBox.setForeground(new Color(187, 187, 187));
+                    for(ReduceDimensionPCAAndLDAAndKPCA element : reduceDimensionPCAAndLDAAndKPCA){
+                        if(Objects.equals(element.getName(), "LDA参数配置："))
+                            reduceDimensionPCAAndLDAAndKPCA.remove(element);
+                    }
                 }
             }
         });
@@ -287,6 +320,10 @@ public class MainWindow{
                 }
                 else{
                     KPCACheckBox.setForeground(new Color(187, 187, 187));
+                    for(ReduceDimensionPCAAndLDAAndKPCA element : reduceDimensionPCAAndLDAAndKPCA){
+                        if(Objects.equals(element.getName(), "KPCA参数配置："))
+                            reduceDimensionPCAAndLDAAndKPCA.remove(element);
+                    }
                 }
             }
         });
@@ -322,6 +359,10 @@ public class MainWindow{
                 }
                 else{
                     zScoreCheckBox.setForeground(new Color(187, 187, 187));
+                    for(ReduceNoiceFFTAndNormalizationZScore element : reduceNoiceFFTAndNormalizationZScores){
+                        if(Objects.equals(element.getName(), "Z-Score参数配置："))
+                            reduceNoiceFFTAndNormalizationZScores.remove(element);
+                    }
                 }
             }
         });
@@ -356,14 +397,10 @@ public class MainWindow{
                 FilePathDialog filePathDialog = new FilePathDialog();
                 filePathDialog.pack();
                 filePathDialog.setVisible(true);
-                curvePath = filePathDialog.curvePath;
-                matlabPath = filePathDialog.matlabPath;
-                resultPath = filePathDialog.resultPath;
-                keyPath = resultPath+"\\key.txt";
-                plainPath = resultPath+"\\plain.txt";
 
-                tabbedPane1.setSelectedIndex(5);
-                mainWindow.ResultPicturePanel.removeAll();
+                configTheFilesPath(filePathDialog);
+                configResultPanel();
+
                 String locationMethod = figureOutLocationMethod();
                 LocationToolBox locationToolBox = new LocationFactory().createLocationToolBox(locationMethod);
                 Thread locationProcessThread = new Thread(()->{
@@ -383,10 +420,10 @@ public class MainWindow{
                 Thread locationProcessStatusThread = new Thread(()->{
                     Thread.currentThread().setName("locationProcessStatusThread");
                     try{
-                        Thread.sleep(100); //等待locationProcessThread中excuteLocation配置好attackNumber
+                        Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
                         while(locationToolBox.getProcessStatus() > 0){
                             mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(locationToolBox.getProcessStatus() + 1));
-                            Thread.sleep(3);
+                            Thread.sleep(1); //尽量小一些，保证可以读取到999
                         }
                     }
                     catch(InterruptedException e1){
@@ -424,7 +461,19 @@ public class MainWindow{
                 preprocessOrderConfirmDialog.pack();
                 preprocessOrderConfirmDialog.setVisible(true);
                 methodList = preprocessOrderConfirmDialog.result;
-                tabbedPane1.setSelectedIndex(5);
+
+                FilePathDialog filePathDialog = new FilePathDialog();
+                filePathDialog.pack();
+                filePathDialog.setVisible(true);
+
+                configTheFilesPath(filePathDialog);
+                configResultPanel();
+
+                // TODO:具体执行预处理过程
+                for(int i=0; i<=methodList.size()-1; i++){
+                    String factoryName = makeSureUseWhichFactory(methodList.get(i));
+                    excutePreprocessDependsOnFactoryName(factoryName, methodList.get(i));
+                }
             }
         });
     }
@@ -479,16 +528,18 @@ public class MainWindow{
         mainWindow.AlignContainerPanel.setLayout(new BorderLayout());
 
         if(Objects.equals(method, "静态对齐")){
-            AlignStaticAlign alignStaticAlign = new AlignStaticAlign();
-            alignStaticAlign.setLable(method);
-            mainWindow.AlignContainerPanel.add(alignStaticAlign.getPanel());
+            AlignStaticAlign temp = new AlignStaticAlign();
+            temp.setLable(method);
+            mainWindow.AlignContainerPanel.add(temp.getPanel());
+            alignStaticAlign.add(temp);
             mainWindow.AlignRecommendCheckBox.setSelected(false);
             mainWindow.AlignNoCheckBox.setSelected(false);
         }
         else if(Objects.equals(method, "动态对齐")){
-            AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC = new AlignDTWAndReduceNoicePOC();
-            alignDTWAndReduceNoicePOC.setLable(method);
-            mainWindow.AlignContainerPanel.add(alignDTWAndReduceNoicePOC.getPanel());
+            AlignDTWAndReduceNoicePOC temp = new AlignDTWAndReduceNoicePOC();
+            temp.setLable(method);
+            mainWindow.AlignContainerPanel.add(temp.getPanel());
+            alignDTWAndReduceNoicePOC.add(temp);
             mainWindow.AlignRecommendCheckBox.setSelected(false);
             mainWindow.AlignNoCheckBox.setSelected(false);
         }
@@ -514,16 +565,18 @@ public class MainWindow{
         mainWindow.ReduceNoiceContainerPanel.setLayout(new BorderLayout());
 
         if(Objects.equals(method, "FFT")){
-            ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore = new ReduceNoiceFFTAndNormalizationZScore();
-            reduceNoiceFFTAndNormalizationZScore.setLable(method);
-            mainWindow.ReduceNoiceContainerPanel.add(reduceNoiceFFTAndNormalizationZScore.getPanel());
+            ReduceNoiceFFTAndNormalizationZScore temp = new ReduceNoiceFFTAndNormalizationZScore();
+            temp.setLable(method);
+            mainWindow.ReduceNoiceContainerPanel.add(temp.getPanel());
+            reduceNoiceFFTAndNormalizationZScores.add(temp);
             mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
         else if(Objects.equals(method, "POC")){
-            AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC = new AlignDTWAndReduceNoicePOC();
-            alignDTWAndReduceNoicePOC.setLable(method);
-            mainWindow.ReduceNoiceContainerPanel.add(alignDTWAndReduceNoicePOC.getPanel());
+            AlignDTWAndReduceNoicePOC temp = new AlignDTWAndReduceNoicePOC();
+            temp.setLable(method);
+            mainWindow.ReduceNoiceContainerPanel.add(temp.getPanel());
+            alignDTWAndReduceNoicePOC.add(temp);
             mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
@@ -569,9 +622,10 @@ public class MainWindow{
         mainWindow.ReduceDimensionContainerPanel.removeAll();
         mainWindow.ReduceDimensionContainerPanel.setLayout(new BorderLayout());
         if(Objects.equals(method, "PCA") || Objects.equals(method, "LDA") || Objects.equals(method, "KPCA")){
-            ReduceDimensionPCAAndLDAAndKPCA reduceDimensionPCAAndLDAAndKPCA = new ReduceDimensionPCAAndLDAAndKPCA();
-            reduceDimensionPCAAndLDAAndKPCA.setLable(method);
-            mainWindow.ReduceDimensionContainerPanel.add(reduceDimensionPCAAndLDAAndKPCA.getPanel());
+            ReduceDimensionPCAAndLDAAndKPCA temp = new ReduceDimensionPCAAndLDAAndKPCA();
+            temp.setLable(method);
+            mainWindow.ReduceDimensionContainerPanel.add(temp.getPanel());
+            reduceDimensionPCAAndLDAAndKPCA.add(temp);
             mainWindow.ReduceDimensionRecommendCheckBox.setSelected(false);
             mainWindow.ReduceDimensionNoCheckBox.setSelected(false);
         }
@@ -599,9 +653,10 @@ public class MainWindow{
         mainWindow.NormalizationContainerPanel.setLayout(new BorderLayout());
 
         if(Objects.equals(method, "Z-Score")){
-            ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore = new ReduceNoiceFFTAndNormalizationZScore();
-            reduceNoiceFFTAndNormalizationZScore.setLable(method);
-            mainWindow.NormalizationContainerPanel.add(reduceNoiceFFTAndNormalizationZScore.getPanel());
+            ReduceNoiceFFTAndNormalizationZScore temp = new ReduceNoiceFFTAndNormalizationZScore();
+            temp.setLable(method);
+            mainWindow.NormalizationContainerPanel.add(temp.getPanel());
+            reduceNoiceFFTAndNormalizationZScores.add(temp);
             mainWindow.NormalizationRecommendCheckBox.setSelected(false);
             mainWindow.NormalizationNoCheckBox.setSelected(false);
         }
@@ -622,57 +677,57 @@ public class MainWindow{
 
     private void updateMethodSet(){
         if(StaticAlignCheckBox.isSelected()){
-            methodSet.add("Static Align");
+            methodSet.add("静态对齐");
         }
         if(DTWCheckBox.isSelected()){
-            methodSet.add("DTW Align");
+            methodSet.add("动态对齐");
         }
         if(FFTCheckBox.isSelected()){
-            methodSet.add("FFT ReduceNoice");
+            methodSet.add("FFT");
         }
         if(POCCheckBox.isSelected()){
-            methodSet.add("POC ReduceNoice");
+            methodSet.add("POC");
         }
         if(KalmanFilterCheckBox.isSelected()){
-            methodSet.add("Kalman ReduceNoice");
+            methodSet.add("卡尔曼滤波");
         }
         if(SSACheckBox.isSelected()){
-            methodSet.add("SSA ReduceNoice");
+            methodSet.add("SSA");
         }
         if(ICACheckBox.isSelected()){
-            methodSet.add("ICA ReduceNoice");
+            methodSet.add("ICA");
         }
         if(PCACheckBox.isSelected()){
-            methodSet.add("PCA ReduceDimension");
+            methodSet.add("PCA");
         }
         if(LDACheckBox.isSelected()){
-            methodSet.add("LDA ReduceDimension");
+            methodSet.add("LDA");
         }
         if(KPCACheckBox.isSelected()){
-            methodSet.add("KPCA ReduceDimension");
+            methodSet.add("KPCA");
         }
         if(zScoreCheckBox.isSelected()){
-            methodSet.add("ZScore Normalization");
+            methodSet.add("Z-Score");
         }
 
         if(AlignRecommendCheckBox.isSelected()){
-            methodSet.add("Static Align");
-            methodSet.add("DTW Align");
+            methodSet.add("静态对齐");
+            methodSet.add("动态对齐");
         }
         if(ReduceNoiceRecommendCheckBox.isSelected()){
-            methodSet.add("FFT ReduceNoice");
-            methodSet.add("POC ReduceNoice");
-            methodSet.add("Kalman ReduceNoice");
-            methodSet.add("SSA ReduceNoice");
-            methodSet.add("ICA ReduceNoice");
+            methodSet.add("FFT");
+            methodSet.add("POC");
+            methodSet.add("卡尔曼滤波");
+            methodSet.add("SSA");
+            methodSet.add("ICA");
         }
         if(ReduceDimensionRecommendCheckBox.isSelected()){
-            methodSet.add("PCA ReduceDimension");
-            methodSet.add("LDA ReduceDimension");
-            methodSet.add("KPCA ReduceDimension");
+            methodSet.add("PCA");
+            methodSet.add("LDA");
+            methodSet.add("KPCA");
         }
         if(NormalizationRecommendCheckBox.isSelected()){
-            methodSet.add("ZScore Normalization");
+            methodSet.add("Z-Score");
         }
     }
 
@@ -693,6 +748,158 @@ public class MainWindow{
         return null;//TODO:throw exception!!!
     }
 
+    private void configTheFilesPath(FilePathDialog filePathDialog){
+        curvePath = filePathDialog.curvePath;
+        matlabPath = filePathDialog.matlabPath;
+        resultPath = filePathDialog.resultPath;
+        keyPath = resultPath+"\\key.txt";
+        plainPath = resultPath+"\\plain.txt";
+    }
+
+    private void configResultPanel(){
+        tabbedPane1.setSelectedIndex(5);
+        mainWindow.ResultPicturePanel.removeAll();
+    }
+
+    private String makeSureUseWhichFactory(String methodName){
+        List<String> alignList = new ArrayList<>();
+        List<String> reduceNoiceList = new ArrayList<>();
+        List<String> reduceDimensionList = new ArrayList<>();
+        List<String> normalizationList = new ArrayList<>();
+        alignList.add("静态对齐");
+        alignList.add("动态对齐");
+        reduceNoiceList.add("FFT");
+        reduceNoiceList.add("POC");
+        reduceNoiceList.add("卡尔曼滤波");
+        reduceNoiceList.add("SSA");
+        reduceNoiceList.add("ICA");
+        reduceDimensionList.add("PCA");
+        reduceDimensionList.add("LDA");
+        reduceDimensionList.add("KPCA");
+        normalizationList.add("Z-Score");
+        if(alignList.contains(methodName))
+            return "align";
+        else if(reduceNoiceList.contains(methodName))
+            return "reduceNoice";
+        else if(reduceDimensionList.contains(methodName))
+            return "reduceDimension";
+        else if(normalizationList.contains(methodName))
+            return "normalization";
+
+        return null; // TODO : 抛出异常
+    }
+
+    private void excutePreprocessDependsOnFactoryName(String factoryName, String preprocessMethod){
+        if(Objects.equals(factoryName, "align")){
+            excuteAlign(preprocessMethod);
+        }
+        else if(Objects.equals(factoryName, "reduceNoice")){
+            excuteReduceNoice(preprocessMethod);
+        }
+        else if(Objects.equals(factoryName, "reduceDimension")){
+            excuteReduceDimension(preprocessMethod);
+        }
+        else if(Objects.equals(factoryName, "normalization")){
+            excuteNormalization(preprocessMethod);
+        }
+    }
+
+    private void excuteAlign(String alignMethod){
+        AlignToolBox alignToolBox = new AlignFactory().createAlignToolBox(alignMethod);
+        excuteConcreteAlign(alignToolBox, alignMethod);
+    }
+
+    private void excuteReduceNoice(String reduceNoiceMethod){
+
+    }
+
+    private void excuteReduceDimension(String reduceDimensionMethod){
+
+    }
+
+    private void excuteNormalization(String normalizationMethod){
+
+    }
+
+    private void excuteConcreteAlign(AlignToolBox alignToolBox, String alignMethod){
+        if(Objects.equals(alignMethod, "静态对齐")){
+            StaticAlign staticAlign = (StaticAlign) alignToolBox;
+            AlignStaticAlign temp = alignStaticAlign.get(0);
+            Thread alignProcessThread = new Thread(()->{
+                Thread.currentThread().setName("alignProcessThread");
+                try{
+                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath);
+                    mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
+                    mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
+                    mainWindow.ResultPicturePanel.updateUI();
+                    Thread.sleep(3);
+                }
+                catch(InterruptedException | IOException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            Thread alignProcessStatusThread = new Thread(()->{
+                Thread.currentThread().setName("locationProcessStatusThread");
+                try{
+                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    while(alignToolBox.getProcessStatus() > 0){
+                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(alignToolBox.getProcessStatus() + 1));
+                        Thread.sleep(1); //尽量小一些，保证可以读取到999
+                    }
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            alignProcessThread.start();
+            alignProcessStatusThread.start();
+        }
+        else if(Objects.equals(alignMethod, "动态对齐")){
+            DTW staticAlign = (DTW) alignToolBox;
+            AlignDTWAndReduceNoicePOC temp = searchDTWAndPOCPanel("动态对齐");
+            Thread alignProcessThread = new Thread(()->{
+                Thread.currentThread().setName("alignProcessThread");
+                try{
+                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath);
+                    mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
+                    mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
+                    mainWindow.ResultPicturePanel.updateUI();
+                    Thread.sleep(3);
+                }
+                catch(InterruptedException | IOException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            Thread alignProcessStatusThread = new Thread(()->{
+                Thread.currentThread().setName("locationProcessStatusThread");
+                try{
+                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    while(alignToolBox.getProcessStatus() > 0){
+                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(alignToolBox.getProcessStatus() + 1));
+                        Thread.sleep(1); //尽量小一些，保证可以读取到999
+                    }
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            alignProcessThread.start();
+            alignProcessStatusThread.start();
+        }
+    }
+
+    private AlignDTWAndReduceNoicePOC searchDTWAndPOCPanel(String method){
+        for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
+            if(alignDTWAndReduceNoicePOC.get(i).getName().contains(method))
+                return alignDTWAndReduceNoicePOC.get(i);
+        }
+        return null; //TODO: 抛出异常
+    }
+
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException{
         // 设置UIManager
         UIManager.setLookAndFeel("com.bulenkov.darcula.DarculaLaf");
@@ -706,6 +913,10 @@ public class MainWindow{
         methodSet = new HashSet<>();
         systemRecommendOption = new boolean[5];
         locationPanel = new LocationPanel();
+        alignDTWAndReduceNoicePOC = new ArrayList<>();
+        alignStaticAlign = new ArrayList<>();
+        reduceDimensionPCAAndLDAAndKPCA = new ArrayList<>();
+        reduceNoiceFFTAndNormalizationZScores = new ArrayList<>();
 
         // 设置frame属性并显示
         mainWindow.setFrameContribution(frame, mainWindow);

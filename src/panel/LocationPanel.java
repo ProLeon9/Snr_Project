@@ -19,6 +19,6 @@ public class LocationPanel{
     }
 
     void setLable(String method){
-        this.LocationMethodLable.setText(method + this.LocationMethodLable.getText());
+        this.LocationMethodLable.setText(method + "≤Œ ˝≈‰÷√£∫");
     }
 }
