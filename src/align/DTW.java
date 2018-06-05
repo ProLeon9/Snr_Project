@@ -22,9 +22,9 @@ public class DTW extends AlignToolBox{
     //显示进度使用
     private int currentStatus;
 
-    public ChartPanel excuteAlign(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC, String resultPath) throws IOException{
+    public ChartPanel excuteAlign(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC, String resultPath, String lastMethod) throws IOException{
         getParametersFromPanel(alignDTWAndReduceNoicePOC);
-        BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\wave.txt"));
+        BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\DTW.txt"));
         //读取baseCurve
         for(int i = 1; i <=this.baseCurveIndex-1; i++){

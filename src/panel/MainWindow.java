@@ -7,6 +7,10 @@ import align.StaticAlign;
 import location.LocationFactory;
 import location.LocationToolBox;
 import org.jfree.chart.ChartPanel;
+import reducenoice.FFT;
+import reducenoice.POC;
+import reducenoice.ReduceNoiceFactory;
+import reducenoice.ReduceNoiceToolBox;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,6 +21,9 @@ import java.awt.event.MouseEvent;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainWindow{
     private JTabbedPane tabbedPane1;
@@ -94,6 +101,8 @@ public class MainWindow{
     private static List<ReduceDimensionPCAAndLDAAndKPCA> reduceDimensionPCAAndLDAAndKPCA; //存放曲线压缩参数
     private static List<ReduceNoiceFFTAndNormalizationZScore> reduceNoiceFFTAndNormalizationZScores; //存放FFT和标准化参数
     private static String lastMethod; // 存放上次进行的预处理方法，便于使用下一个方法时找到文件
+    private static ExecutorService preprocessExecutor; // 存放预处理执行线程，使依次执行
+    private static ExecutorService statusExecutor; // 存放更新界面线程，使和预处理线程对应并发执行
 
 
     private MainWindow(){
@@ -810,7 +819,8 @@ public class MainWindow{
     }
 
     private void excuteReduceNoice(String reduceNoiceMethod){
-
+        ReduceNoiceToolBox reduceNoiceToolBox = new ReduceNoiceFactory().createRedeceNoiceToolBox(reduceNoiceMethod);
+        excuteConcreteReduceNoice(reduceNoiceToolBox, reduceNoiceMethod);
     }
 
     private void excuteReduceDimension(String reduceDimensionMethod){
@@ -828,7 +838,9 @@ public class MainWindow{
             Thread alignProcessThread = new Thread(()->{
                 Thread.currentThread().setName("alignProcessThread");
                 try{
-                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath);
+                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath, lastMethod);
+                    lastMethod = "StaticAlign";
+                    mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
@@ -853,8 +865,8 @@ public class MainWindow{
                 }
             });
 
-            alignProcessThread.start();
-            alignProcessStatusThread.start();
+            preprocessExecutor.submit(alignProcessThread);
+            statusExecutor.submit(alignProcessStatusThread);
         }
         else if(Objects.equals(alignMethod, "动态对齐")){
             DTW staticAlign = (DTW) alignToolBox;
@@ -862,7 +874,9 @@ public class MainWindow{
             Thread alignProcessThread = new Thread(()->{
                 Thread.currentThread().setName("alignProcessThread");
                 try{
-                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath);
+                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath, lastMethod);
+                    lastMethod = "DTW"; //根据对应方法里写文件的名称
+                    mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
@@ -874,7 +888,7 @@ public class MainWindow{
             });
 
             Thread alignProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("locationProcessStatusThread");
+                Thread.currentThread().setName("alignProcessStatusThread");
                 try{
                     Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
                     while(alignToolBox.getProcessStatus() > 0){
@@ -887,8 +901,83 @@ public class MainWindow{
                 }
             });
 
-            alignProcessThread.start();
-            alignProcessStatusThread.start();
+            preprocessExecutor.submit(alignProcessThread);
+            statusExecutor.submit(alignProcessStatusThread);
+        }
+    }
+
+    private void excuteConcreteReduceNoice(ReduceNoiceToolBox reduceNoiceToolBox, String reduceNoiceMethod){
+        if(Objects.equals(reduceNoiceMethod, "FFT")){
+            FFT fft = (FFT) reduceNoiceToolBox;
+            ReduceNoiceFFTAndNormalizationZScore temp = searchFFTAndZscorePanel("FFT");
+            Thread reduceNoiceProcessThread = new Thread(()->{
+                Thread.currentThread().setName("reduceNoiceProcessThread");
+                try{
+                    resultChartPanel = fft.excuteReduceNoice(temp, resultPath, lastMethod);
+                    lastMethod = "FFT";
+                    mainWindow.ResultPicturePanel.removeAll();
+                    mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
+                    mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
+                    mainWindow.ResultPicturePanel.updateUI();
+                    Thread.sleep(3);
+                }
+                catch(InterruptedException | IOException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            Thread reduceNoiceProcessStatusThread = new Thread(()->{
+                Thread.currentThread().setName("reduceNoiceProcessStatusThread");
+                try{
+                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    while(reduceNoiceToolBox.getProcessStatus() > 0){
+                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
+                        Thread.sleep(1); //尽量小一些，保证可以读取到999
+                    }
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            preprocessExecutor.submit(reduceNoiceProcessThread);
+            statusExecutor.submit(reduceNoiceProcessStatusThread);
+        }
+        else if(Objects.equals(reduceNoiceMethod, "POC")){
+            POC poc = (POC) reduceNoiceToolBox;
+            AlignDTWAndReduceNoicePOC temp = searchDTWAndPOCPanel("POC");
+            Thread reduceNoiceProcessThread = new Thread(()->{
+                Thread.currentThread().setName("reduceNoiceProcessThread");
+                try{
+                    resultChartPanel = poc.excuteReduceNoice(temp, resultPath, lastMethod);
+                    lastMethod = "POC";
+                    mainWindow.ResultPicturePanel.removeAll();
+                    mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
+                    mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
+                    mainWindow.ResultPicturePanel.updateUI();
+                    Thread.sleep(3);
+                }
+                catch(InterruptedException | IOException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            Thread reduceNoiceProcessStatusThread = new Thread(()->{
+                Thread.currentThread().setName("reduceNoiceProcessStatusThread");
+                try{
+                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    while(reduceNoiceToolBox.getProcessStatus() > 0){
+                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
+                        Thread.sleep(1); //尽量小一些，保证可以读取到999
+                    }
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            preprocessExecutor.submit(reduceNoiceProcessThread);
+            statusExecutor.submit(reduceNoiceProcessStatusThread);
         }
     }
 
@@ -896,6 +985,14 @@ public class MainWindow{
         for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
             if(alignDTWAndReduceNoicePOC.get(i).getName().contains(method))
                 return alignDTWAndReduceNoicePOC.get(i);
+        }
+        return null; //TODO: 抛出异常
+    }
+
+    private ReduceNoiceFFTAndNormalizationZScore searchFFTAndZscorePanel(String method){
+        for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
+            if(reduceNoiceFFTAndNormalizationZScores.get(i).getName().contains(method))
+                return reduceNoiceFFTAndNormalizationZScores.get(i);
         }
         return null; //TODO: 抛出异常
     }
@@ -917,6 +1014,9 @@ public class MainWindow{
         alignStaticAlign = new ArrayList<>();
         reduceDimensionPCAAndLDAAndKPCA = new ArrayList<>();
         reduceNoiceFFTAndNormalizationZScores = new ArrayList<>();
+        preprocessExecutor = Executors.newSingleThreadExecutor();
+        statusExecutor = Executors.newSingleThreadExecutor();
+        lastMethod = "wave";
 
         // 设置frame属性并显示
         mainWindow.setFrameContribution(frame, mainWindow);

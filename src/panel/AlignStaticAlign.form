@@ -32,7 +32,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="0"/>
+              <text value="1"/>
             </properties>
           </component>
           <component id="af8be" class="javax.swing.JLabel">
@@ -51,7 +51,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="0"/>
+              <text value="1"/>
             </properties>
           </component>
           <component id="fe5ee" class="javax.swing.JLabel">

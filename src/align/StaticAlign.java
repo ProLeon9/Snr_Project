@@ -23,9 +23,9 @@ public class StaticAlign extends AlignToolBox{
     private int currentStatus;
 
 
-    public ChartPanel excuteAlign(AlignStaticAlign alignStaticAlign, String resultPath) throws IOException{
+    public ChartPanel excuteAlign(AlignStaticAlign alignStaticAlign, String resultPath, String lastMethod) throws IOException{
         getParametersFromPanel(alignStaticAlign);
-        BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\wave.txt"));
+        BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\StaticAlign.txt"));
         //∂¡»°baseCurve
         for(int i = 1; i <=this.baseCurveIndex-1; i++){
@@ -127,7 +127,7 @@ public class StaticAlign extends AlignToolBox{
         for(int i = 0; i < x; i++){
             fenzi = fenzi+(pc1[i]-aver1)*(pc2[i]-aver2);
             fenmu1 = fenmu1+(pc1[i]-aver1)*(pc1[i]-aver1);
-            fenmu2 = fenmu2+(pc2[i]-aver2)*(pc2[i]-aver2);
+            fenmu2 = fenmu2+(pc2[i]-aver1)*(pc2[i]-aver1);
         }
         double cor = Math.abs(fenzi/Math.pow(fenmu1*fenmu2, 0.5));
         return cor;
