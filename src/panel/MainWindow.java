@@ -7,10 +7,7 @@ import align.StaticAlign;
 import location.LocationFactory;
 import location.LocationToolBox;
 import org.jfree.chart.ChartPanel;
-import reducenoice.FFT;
-import reducenoice.POC;
-import reducenoice.ReduceNoiceFactory;
-import reducenoice.ReduceNoiceToolBox;
+import reducenoice.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -96,6 +93,7 @@ public class MainWindow{
     private static List<String> methodList;   //存放将要使用的预处理方法
     private static boolean[] systemRecommendOption;   //是否需要系统推荐
     private static LocationPanel locationPanel; //存放location参数
+    private static List<ReduceNoiceKalmanFilter> reduceNoiceKalmanFilter; // 存放卡尔曼滤波参数
     private static List<AlignDTWAndReduceNoicePOC> alignDTWAndReduceNoicePOC; //存放DTW和POC参数
     private static List<AlignStaticAlign> alignStaticAlign; //存放静态对齐参数
     private static List<ReduceDimensionPCAAndLDAAndKPCA> reduceDimensionPCAAndLDAAndKPCA; //存放曲线压缩参数
@@ -244,6 +242,10 @@ public class MainWindow{
                 }
                 else{
                     KalmanFilterCheckBox.setForeground(new Color(187, 187, 187));
+                    for(ReduceNoiceKalmanFilter element : reduceNoiceKalmanFilter){
+                        if(Objects.equals(element.getName(), "卡尔曼滤波参数配置："))
+                            reduceNoiceKalmanFilter.remove(element);
+                    }
                 }
             }
         });
@@ -590,7 +592,10 @@ public class MainWindow{
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
         else if(Objects.equals(method, "卡尔曼滤波")){
-
+            ReduceNoiceKalmanFilter temp = new ReduceNoiceKalmanFilter();
+            temp.setLable(method);
+            mainWindow.ReduceNoiceContainerPanel.add(temp.getPanel());
+            reduceNoiceKalmanFilter.add(temp);
             mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
@@ -979,6 +984,42 @@ public class MainWindow{
             preprocessExecutor.submit(reduceNoiceProcessThread);
             statusExecutor.submit(reduceNoiceProcessStatusThread);
         }
+        else if(Objects.equals(reduceNoiceMethod, "卡尔曼滤波")){
+            KalmanFilter kalmanFilter = (KalmanFilter) reduceNoiceToolBox;
+            ReduceNoiceKalmanFilter temp = reduceNoiceKalmanFilter.get(0);
+            Thread reduceNoiceProcessThread = new Thread(()->{
+                Thread.currentThread().setName("reduceNoiceProcessThread");
+                try{
+                    resultChartPanel = kalmanFilter.excuteReduceNoice(temp, resultPath, lastMethod);
+                    lastMethod = "KalmanFilter";
+                    mainWindow.ResultPicturePanel.removeAll();
+                    mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
+                    mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
+                    mainWindow.ResultPicturePanel.updateUI();
+                    Thread.sleep(3);
+                }
+                catch(InterruptedException | IOException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            Thread reduceNoiceProcessStatusThread = new Thread(()->{
+                Thread.currentThread().setName("reduceNoiceProcessStatusThread");
+                try{
+                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    while(reduceNoiceToolBox.getProcessStatus() > 0){
+                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
+                        Thread.sleep(1); //尽量小一些，保证可以读取到999
+                    }
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            preprocessExecutor.submit(reduceNoiceProcessThread);
+            statusExecutor.submit(reduceNoiceProcessStatusThread);
+        }
     }
 
     private AlignDTWAndReduceNoicePOC searchDTWAndPOCPanel(String method){
@@ -1010,6 +1051,7 @@ public class MainWindow{
         methodSet = new HashSet<>();
         systemRecommendOption = new boolean[5];
         locationPanel = new LocationPanel();
+        reduceNoiceKalmanFilter = new ArrayList<>();
         alignDTWAndReduceNoicePOC = new ArrayList<>();
         alignStaticAlign = new ArrayList<>();
         reduceDimensionPCAAndLDAAndKPCA = new ArrayList<>();

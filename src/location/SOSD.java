@@ -35,7 +35,6 @@ public class SOSD extends LocationToolBox{
     private int currentStatus;
 
 
-
     @Override
     public ChartPanel excuteLocation(LocationPanel locationPanel, String resultPath) throws IOException{
         getParametersFromPanel(locationPanel);
@@ -80,16 +79,18 @@ public class SOSD extends LocationToolBox{
         System.arraycopy(result, 0, yris[0], 0, xris.length);
         XYDataset xyDataset = ChartUtils.createXYSeries(1, xris, yris, new String[]{"result"});
         XYLineChart xyLineChart = new XYLineChart();
-        super.resultChartPanel = xyLineChart.getChart("NICV Result", "Sample", "Corelation", xyDataset, true);
+        super.resultChartPanel = xyLineChart.getChart("SOSD Result", "Sample", "Corelation", xyDataset, true);
         return super.resultChartPanel;
     }
 
     @Override
     public int getProcessStatus(){
-        if(currentStatus < this.attackCurveNum)
+        if(currentStatus < this.attackCurveNum){
             return currentStatus;
-        else
+        }
+        else{
             return -1;
+        }
     }
 
     //SOSD初始化所需数组
@@ -145,7 +146,7 @@ public class SOSD extends LocationToolBox{
             result[i] = temp;
         }
         //降低数量积
-        int len = 1;
+        int len = 0;
         double base = result[0];
         while(base > 1){
             base /= 10;
