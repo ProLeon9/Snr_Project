@@ -34,7 +34,7 @@ public class StaticAlign extends AlignToolBox{
         double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
         curveReader.close();
         //ÌÞ³ý²»ÓÃµÄCurve
-        curveReader = new BufferedReader(new FileReader(resultPath+"\\wave.txt"));
+        curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         for(int i = 1; i <= this.attackCurveStart-1; i++){
             curveReader.readLine();
         }

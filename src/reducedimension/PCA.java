@@ -1,4 +1,4 @@
-package reducenoice;
+package reducedimension;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
@@ -11,14 +11,15 @@ import tools.graph.util.ChartUtils;
 
 import java.io.*;
 
-public class SSA extends ReduceNoiceToolBox{
+
+public class PCA extends ReduceDimensionToolBox{
     //曲线相关参数
     private int attackSampleNum;
     private int attackSampleStart;
     private int attackCurveStart;
     private int attackCurveNum;
-    //SSA相关参数
-    private int slideWindowNum;
+    //PCA相关参数
+    private int reduceDimension;
     //显示进度相关参数
     private int currentStatus;
 
@@ -33,10 +34,11 @@ public class SSA extends ReduceNoiceToolBox{
         }
     }
 
+    @Override
     public ChartPanel excuteReduceDimesion(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA, String resultPath, String lastMethod, String matlabPath) throws Exception{
         getParametersFromPanel(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA);
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
-        BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\SSA_old.txt"));
+        BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\PCA_old.txt"));
 
         //剔除不用的Curve
         for(int i = 1; i <= this.attackCurveStart-1; i++){
@@ -67,7 +69,7 @@ public class SSA extends ReduceNoiceToolBox{
         }
         Thread.sleep(100);
         // 读取处理后曲线的第50条
-        BufferedReader newCurveReader = new BufferedReader(new FileReader(resultPath + "\\SSA.txt"));
+        BufferedReader newCurveReader = new BufferedReader(new FileReader(resultPath + "\\PCA.txt"));
         for(int i = 1; i <= 50; i++){
             curve = CommonFunctions.doubleStringToDoubleArray(newCurveReader.readLine());
             if(i == 50){
@@ -75,7 +77,7 @@ public class SSA extends ReduceNoiceToolBox{
             }
         }
         file.delete();
-        file = new File(resultPath+"\\"+"SSA_old.txt");
+        file = new File(resultPath+"\\"+"PCA_old.txt");
         file.delete();
         //执行作图
         int[] xris = new int[this.attackSampleNum];
@@ -90,7 +92,7 @@ public class SSA extends ReduceNoiceToolBox{
         System.arraycopy(newTrace, 0, yris[1], 0, newTrace.length);
         XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_trace", "new_trace"});
         XYLineChart xyLineChart = new XYLineChart();
-        super.resultChartPanel = xyLineChart.getChart("SSA Result", "Sample", "Value", xyDataset, true);
+        super.resultChartPanel = xyLineChart.getChart("PCA Result", "Sample", "Value", xyDataset, true);
         return super.resultChartPanel;
     }
 
@@ -99,11 +101,11 @@ public class SSA extends ReduceNoiceToolBox{
         this.attackCurveNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.curve_number_textfiled.getText());
         this.attackSampleStart = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.sample_start_textfiled.getText());
         this.attackSampleNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.sample_number_textfiled.getText());
-        this.slideWindowNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.character_number_textfield.getText());
+        this.reduceDimension = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.character_number_textfield.getText());
     }
 
     private void excuteMatlabScript(String resultPath, String matlabPath) throws IOException{
-        String comstr = matlabPath+" -nosplash -nodesktop -nodisplay -r \""+"wavePath=\'"+resultPath+"\\"+"\',N="+this.slideWindowNum+";"+"runSSA\"";
+        String comstr = matlabPath+" -nosplash -nodesktop -nodisplay -r \""+"wavePath=\'"+resultPath+"\\"+"\',N="+reduceDimension+";"+"runPCA\"";
         Runtime.getRuntime().exec(comstr);
     }
 }

@@ -117,7 +117,7 @@ public class CommonFunctions{
         return sum;
     }
 
-    private static double getAverage(double[] inputData){
+    public static double getAverage(double[] inputData){
         if(inputData == null || inputData.length == 0){
             return -1;
         }
@@ -153,5 +153,20 @@ public class CommonFunctions{
             sqrsum = sqrsum+anInputData*anInputData;
         }
         return sqrsum;
+    }
+
+    //标准差σ=sqrt(s^2)
+    public static double getStandardDiviation(double[] x) {
+        int m=x.length;
+        double sum=0;
+        for(int i=0;i<m;i++){//求和
+            sum+=x[i];
+        }
+        double dAve=sum/m;//求平均值
+        double dVar=0;
+        for(int i=0;i<m;i++){//求方差
+            dVar+=(x[i]-dAve)*(x[i]-dAve);
+        }
+        return Math.sqrt(dVar/m);
     }
 }

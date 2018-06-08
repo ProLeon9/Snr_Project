@@ -111,7 +111,7 @@ public class PreprocessOrderConfirmDialog extends JDialog{
         }
         if(systemRecomendOption[3]){
             methodSet.remove("PCA");
-            methodSet.remove("LDA");
+            methodSet.remove("LLE");
             methodSet.remove("KPCA");
         }
         if(systemRecomendOption[4]){
