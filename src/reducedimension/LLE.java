@@ -66,7 +66,8 @@ public class LLE extends ReduceDimensionToolBox{
         while(!file.exists()){
             Thread.sleep(500);
         }
-        Thread.sleep(100);
+        file.delete();
+        Thread.sleep(500);
         // 读取处理后曲线的第50条
         BufferedReader newCurveReader = new BufferedReader(new FileReader(resultPath + "\\LLE.txt"));
         for(int i = 1; i <= 50; i++){
@@ -75,7 +76,6 @@ public class LLE extends ReduceDimensionToolBox{
                 newTrace = curve;
             }
         }
-        file.delete();
         file = new File(resultPath+"\\"+"LLE_old.txt");
         file.delete();
         //执行作图

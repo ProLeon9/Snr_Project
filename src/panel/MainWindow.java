@@ -161,9 +161,11 @@ public class MainWindow{
                 }
                 else{
                     StaticAlignCheckBox.setForeground(new Color(187, 187, 187));
-                    for(AlignStaticAlign element : alignStaticAlign){
-                        if(Objects.equals(element.getName(), "静态对齐参数配置："))
-                            alignStaticAlign.remove(element);
+                    for(int i=0; i<=alignStaticAlign.size()-1; i++){
+                        if(Objects.equals(alignStaticAlign.get(i).getName(), "静态对齐参数配置：")){
+                            alignStaticAlign.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -176,9 +178,11 @@ public class MainWindow{
                 }
                 else{
                     DTWCheckBox.setForeground(new Color(187, 187, 187));
-                    for(AlignDTWAndReduceNoicePOC element : alignDTWAndReduceNoicePOC){
-                        if(Objects.equals(element.getName(), "动态对齐参数配置："))
-                            alignDTWAndReduceNoicePOC.remove(element);
+                    for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
+                        if(Objects.equals(alignDTWAndReduceNoicePOC.get(i).getName(), "动态对齐参数配置：")){
+                            alignDTWAndReduceNoicePOC.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -215,9 +219,11 @@ public class MainWindow{
                 }
                 else{
                     FFTCheckBox.setForeground(new Color(187, 187, 187));
-                    for(ReduceNoiceFFTAndNormalizationZScore element : reduceNoiceFFTAndNormalizationZScores){
-                        if(Objects.equals(element.getName(),"FFT参数配置：" ))
-                            reduceNoiceFFTAndNormalizationZScores.remove(element);
+                    for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
+                        if(Objects.equals(reduceNoiceFFTAndNormalizationZScores.get(i).getName(), "FFT参数配置：")){
+                            reduceNoiceFFTAndNormalizationZScores.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -230,9 +236,11 @@ public class MainWindow{
                 }
                 else{
                     POCCheckBox.setForeground(new Color(187, 187, 187));
-                    for(AlignDTWAndReduceNoicePOC element : alignDTWAndReduceNoicePOC){
-                        if(Objects.equals(element.getName(), "POC参数配置："))
-                            alignDTWAndReduceNoicePOC.remove(element);
+                    for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
+                        if(Objects.equals(alignDTWAndReduceNoicePOC.get(i).getName(), "POC参数配置：")){
+                            alignDTWAndReduceNoicePOC.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -245,9 +253,11 @@ public class MainWindow{
                 }
                 else{
                     KalmanFilterCheckBox.setForeground(new Color(187, 187, 187));
-                    for(ReduceNoiceKalmanFilter element : reduceNoiceKalmanFilter){
-                        if(Objects.equals(element.getName(), "卡尔曼滤波参数配置："))
-                            reduceNoiceKalmanFilter.remove(element);
+                    for(int i=0; i<=reduceNoiceKalmanFilter.size()-1; i++){
+                        if(Objects.equals(reduceNoiceKalmanFilter.get(i).getName(), "卡尔曼滤波参数配置：")){
+                            reduceNoiceKalmanFilter.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -260,6 +270,12 @@ public class MainWindow{
                 }
                 else{
                     SSACheckBox.setForeground(new Color(187, 187, 187));
+                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "SSA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                            i=0;
+                        }
+                    }
                 }
             }
         });
@@ -271,6 +287,7 @@ public class MainWindow{
                 }
                 else{
                     ICACheckBox.setForeground(new Color(187, 187, 187));
+                    //TODO: 从列表中删除ICA面板
                 }
             }
         });
@@ -304,9 +321,11 @@ public class MainWindow{
                 }
                 else{
                     PCACheckBox.setForeground(new Color(187, 187, 187));
-                    for(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA element : reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA){
-                        if(Objects.equals(element.getName(), "PCA参数配置："))
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(element);
+                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "PCA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -319,9 +338,11 @@ public class MainWindow{
                 }
                 else{
                     LLECheckBox.setForeground(new Color(187, 187, 187));
-                    for(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA element : reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA){
-                        if(Objects.equals(element.getName(), "LLE参数配置："))
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(element);
+                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "LLE参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -334,9 +355,11 @@ public class MainWindow{
                 }
                 else{
                     KPCACheckBox.setForeground(new Color(187, 187, 187));
-                    for(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA element : reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA){
-                        if(Objects.equals(element.getName(), "KPCA参数配置："))
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(element);
+                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "KPCA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -373,9 +396,11 @@ public class MainWindow{
                 }
                 else{
                     zScoreCheckBox.setForeground(new Color(187, 187, 187));
-                    for(ReduceNoiceFFTAndNormalizationZScore element : reduceNoiceFFTAndNormalizationZScores){
-                        if(Objects.equals(element.getName(), "Z-Score参数配置："))
-                            reduceNoiceFFTAndNormalizationZScores.remove(element);
+                    for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
+                        if(Objects.equals(reduceNoiceFFTAndNormalizationZScores.get(i).getName(), "Z-Score参数配置：")){
+                            reduceNoiceFFTAndNormalizationZScores.remove(i);
+                            i=0;
+                        }
                     }
                 }
             }
@@ -487,6 +512,12 @@ public class MainWindow{
                 for(int i=0; i<=methodList.size()-1; i++){
                     String factoryName = makeSureUseWhichFactory(methodList.get(i));
                     excutePreprocessDependsOnFactoryName(factoryName, methodList.get(i));
+                    try{
+                        Thread.sleep(300);
+                    }
+                    catch(InterruptedException e1){
+                        e1.printStackTrace();
+                    }
                 }
             }
         });

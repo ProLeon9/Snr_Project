@@ -65,7 +65,8 @@ public class SSA extends ReduceNoiceToolBox{
         while(!file.exists()){
             Thread.sleep(500);
         }
-        Thread.sleep(100);
+        file.delete();
+        Thread.sleep(500);
         // 读取处理后曲线的第50条
         BufferedReader newCurveReader = new BufferedReader(new FileReader(resultPath + "\\SSA.txt"));
         for(int i = 1; i <= 50; i++){
@@ -74,7 +75,6 @@ public class SSA extends ReduceNoiceToolBox{
                 newTrace = curve;
             }
         }
-        file.delete();
         file = new File(resultPath+"\\"+"SSA_old.txt");
         file.delete();
         //执行作图
