@@ -2,7 +2,7 @@ package panel;
 
 import javax.swing.*;
 
-public class ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA{
+public class ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA{
     public JTextField curve_start_textfiled;
     public JTextField sample_start_textfiled;
     public JTextField curve_number_textfiled;
@@ -10,7 +10,7 @@ public class ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA{
     public JTextField character_number_textfield;
     public JPanel ReduceDimensionPCAOrLDAOrKPCAParametersPanel;
     public JLabel ReduceDimensionMethodLable;
-    public JLabel SSAUseLable;
+    public JLabel SSAAndICAUseLable;
 
     JPanel getPanel(){
         return this.ReduceDimensionPCAOrLDAOrKPCAParametersPanel;
@@ -25,6 +25,10 @@ public class ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA{
 
     void rename(String method){
         if(method == "SSA")
-            this.SSAUseLable.setText("滑动窗口值： ");
+            this.SSAAndICAUseLable.setText("滑动窗口值： ");
+        else if(method == "ICA"){
+            this.SSAAndICAUseLable.setVisible(false);
+            this.character_number_textfield.setVisible(false);
+        }
     }
 }

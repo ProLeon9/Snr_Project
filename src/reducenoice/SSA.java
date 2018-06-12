@@ -4,7 +4,7 @@ import evaluation.PI;
 import evaluation.SNR;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
-import panel.ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA;
+import panel.ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA;
 import tools.CommonFunctions;
 import tools.filewatch.ZJPFileListener;
 import tools.filewatch.ZJPFileMonitor;
@@ -44,8 +44,8 @@ public class SSA extends ReduceNoiceToolBox{
         }
     }
 
-    public ChartPanel excuteReduceDimesion(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA, String resultPath, String lastMethod, String matlabPath) throws Exception{
-        getParametersFromPanel(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA);
+    public ChartPanel excuteReduceNoice(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA, String resultPath, String lastMethod, String matlabPath) throws Exception{
+        getParametersFromPanel(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA);
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\SSA_old.txt"));
 
@@ -58,7 +58,7 @@ public class SSA extends ReduceNoiceToolBox{
         for(int i = 1; i <= this.attackCurveNum; i++){
             curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
             resultWriter.append(CommonFunctions.doubleArrayToString(curve));
-            currentStatus = i-1;
+            currentStatus = i/2;
             if(i == 50){
                 originalTrace = curve;
             }
@@ -138,12 +138,12 @@ public class SSA extends ReduceNoiceToolBox{
         return super.resultChartPanel;
     }
 
-    private void getParametersFromPanel(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA){
-        this.attackCurveStart = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.curve_start_textfiled.getText());
-        this.attackCurveNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.curve_number_textfiled.getText());
-        this.attackSampleStart = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.sample_start_textfiled.getText());
-        this.attackSampleNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.sample_number_textfiled.getText());
-        this.slideWindowNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.character_number_textfield.getText());
+    private void getParametersFromPanel(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA){
+        this.attackCurveStart = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.curve_start_textfiled.getText());
+        this.attackCurveNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.curve_number_textfiled.getText());
+        this.attackSampleStart = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.sample_start_textfiled.getText());
+        this.attackSampleNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.sample_number_textfiled.getText());
+        this.slideWindowNum = Integer.parseInt(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.character_number_textfield.getText());
     }
 
     private void excuteMatlabScript(String resultPath, String matlabPath) throws IOException{

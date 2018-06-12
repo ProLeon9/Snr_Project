@@ -100,7 +100,7 @@ public class MainWindow{
     private static List<ReduceNoiceKalmanFilter> reduceNoiceKalmanFilter; // 存放卡尔曼滤波参数
     private static List<AlignDTWAndReduceNoicePOC> alignDTWAndReduceNoicePOC; //存放DTW和POC参数
     private static List<AlignStaticAlign> alignStaticAlign; //存放静态对齐参数
-    private static List<ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA> reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA; //存放曲线压缩参数
+    private static List<ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA> reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA; //存放曲线压缩参数
     private static List<ReduceNoiceFFTAndNormalizationZScore> reduceNoiceFFTAndNormalizationZScores; //存放FFT和标准化参数
     private static String lastMethod; // 存放上次进行的预处理方法，便于使用下一个方法时找到文件
     private static ExecutorService preprocessExecutor; // 存放预处理执行线程，使依次执行
@@ -271,9 +271,9 @@ public class MainWindow{
                 }
                 else{
                     SSACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "SSA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "SSA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
                             i=0;
                         }
                     }
@@ -288,7 +288,12 @@ public class MainWindow{
                 }
                 else{
                     ICACheckBox.setForeground(new Color(187, 187, 187));
-                    //TODO: 从列表中删除ICA面板
+                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "ICA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
+                            i=0;
+                        }
+                    }
                 }
             }
         });
@@ -322,9 +327,9 @@ public class MainWindow{
                 }
                 else{
                     PCACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "PCA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "PCA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
                             i=0;
                         }
                     }
@@ -339,9 +344,9 @@ public class MainWindow{
                 }
                 else{
                     LLECheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "LLE参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "LLE参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
                             i=0;
                         }
                     }
@@ -356,9 +361,9 @@ public class MainWindow{
                 }
                 else{
                     KPCACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName(), "KPCA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.remove(i);
+                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "KPCA参数配置：")){
+                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
                             i=0;
                         }
                     }
@@ -646,16 +651,21 @@ public class MainWindow{
         }
         else if(Objects.equals(method, "SSA")){
 
-            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA();
+            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA();
             temp.setLable(method);
             temp.rename(method);
             mainWindow.ReduceNoiceContainerPanel.add(temp.getPanel());
-            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.add(temp);
+            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.add(temp);
             mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
         else if(Objects.equals(method, "ICA")){
 
+            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA();
+            temp.setLable(method);
+            temp.rename(method);
+            mainWindow.ReduceNoiceContainerPanel.add(temp.getPanel());
+            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.add(temp);
             mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
@@ -686,10 +696,10 @@ public class MainWindow{
         mainWindow.ReduceDimensionContainerPanel.removeAll();
         mainWindow.ReduceDimensionContainerPanel.setLayout(new BorderLayout());
         if(Objects.equals(method, "PCA") || Objects.equals(method, "LLE") || Objects.equals(method, "KPCA")){
-            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA();
+            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA();
             temp.setLable(method);
             mainWindow.ReduceDimensionContainerPanel.add(temp.getPanel());
-            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.add(temp);
+            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.add(temp);
             mainWindow.ReduceDimensionRecommendCheckBox.setSelected(false);
             mainWindow.ReduceDimensionNoCheckBox.setSelected(false);
         }
@@ -1106,10 +1116,10 @@ public class MainWindow{
         else if(Objects.equals(reduceNoiceMethod, "SSA")){
             Thread reduceNoiceProcessThread = new Thread(()->{
                 SSA ssa = (SSA) reduceNoiceToolBox;
-                ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA temp = searchPCAAndSSAPanel("SSA");
+                ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = searchPCAAndSSAPanel("SSA");
                 Thread.currentThread().setName("ReduceNoiceProcessThread");
                 try{
-                    resultChartPanel = ssa.excuteReduceDimesion(temp, resultPath, lastMethod, matlabPath);
+                    resultChartPanel = ssa.excuteReduceNoice(temp, resultPath, lastMethod, matlabPath);
                     lastMethod = "SSA";
                     double[] SNRReulst = ssa.getSNR();
                     mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
@@ -1145,12 +1155,55 @@ public class MainWindow{
             preprocessExecutor.submit(reduceNoiceProcessThread);
             statusExecutor.submit(reduceNoiceProcessStatusThread);
         }
+
+        else if(Objects.equals(reduceNoiceMethod, "ICA")){
+            Thread reduceNoiceProcessThread = new Thread(()->{
+                ICA ica = (ICA) reduceNoiceToolBox;
+                ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = searchPCAAndSSAPanel("ICA");
+                Thread.currentThread().setName("ReduceNoiceProcessThread");
+                try{
+                    resultChartPanel = ica.excuteReduceNoice(temp, resultPath, lastMethod, matlabPath);
+                    lastMethod = "ICA";
+                    double[] SNRReulst = ica.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = ica.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    mainWindow.ResultPicturePanel.removeAll();
+                    mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
+                    mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
+                    mainWindow.ResultPicturePanel.updateUI();
+                    Thread.sleep(300);
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
+            });
+
+            Thread reduceNoiceProcessStatusThread = new Thread(()->{
+                Thread.currentThread().setName("ReduceNoiceProcessStatusThread");
+                try{
+                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    while(reduceNoiceToolBox.getProcessStatus() > 0){
+                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
+                        Thread.sleep(1); //尽量小一些，保证可以读取到999
+                    }
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
+            });
+
+            preprocessExecutor.submit(reduceNoiceProcessThread);
+            statusExecutor.submit(reduceNoiceProcessStatusThread);
+        }
     }
 
     private void excuteConcreteReduceDimension(ReduceDimensionToolBox reduceDimensionToolBox, String reduceDimensionMethod){
         Thread reduceDimensionProcessThread = new Thread(()->{
             Thread.currentThread().setName("ReduceDimensionProcessThread");
-            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA temp = reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1);
+            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1);
             try{
                 resultChartPanel = reduceDimensionToolBox.excuteReduceDimesion(temp, resultPath, lastMethod, matlabPath);
                 lastMethod = reduceDimensionMethod;
@@ -1250,10 +1303,10 @@ public class MainWindow{
         return null; //TODO: 抛出异常
     }
 
-    private ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA searchPCAAndSSAPanel(String method){
-        for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.size()-1; i++){
-            if(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i).getName().contains(method))
-                return reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA.get(i);
+    private ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA searchPCAAndSSAPanel(String method){
+        for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+            if(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName().contains(method))
+                return reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i);
         }
         return null; //TODO: 抛出异常
     }
@@ -1274,7 +1327,7 @@ public class MainWindow{
         reduceNoiceKalmanFilter = new ArrayList<>();
         alignDTWAndReduceNoicePOC = new ArrayList<>();
         alignStaticAlign = new ArrayList<>();
-        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA = new ArrayList<>();
+        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA = new ArrayList<>();
         reduceNoiceFFTAndNormalizationZScores = new ArrayList<>();
         preprocessExecutor = Executors.newSingleThreadExecutor();
         statusExecutor = Executors.newSingleThreadExecutor();
