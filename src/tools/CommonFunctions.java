@@ -156,17 +156,61 @@ public class CommonFunctions{
     }
 
     //标准差σ=sqrt(s^2)
-    public static double getStandardDiviation(double[] x) {
-        int m=x.length;
-        double sum=0;
-        for(int i=0;i<m;i++){//求和
-            sum+=x[i];
+    public static double getStandardDiviation(double[] x){
+        int m = x.length;
+        double sum = 0;
+        for(int i = 0; i < m; i++){//求和
+            sum += x[i];
         }
-        double dAve=sum/m;//求平均值
-        double dVar=0;
-        for(int i=0;i<m;i++){//求方差
-            dVar+=(x[i]-dAve)*(x[i]-dAve);
+        double dAve = sum/m;//求平均值
+        double dVar = 0;
+        for(int i = 0; i < m; i++){//求方差
+            dVar += (x[i]-dAve)*(x[i]-dAve);
         }
         return Math.sqrt(dVar/m);
+    }
+
+    public static double getMax(double[] data){
+        int length = data.length;
+        double max = data[0];
+        for(int i = 1; i <= length-1; i++){
+            if(data[i] > max){
+                max = data[i];
+            }
+        }
+        return max;
+    }
+
+    public static double getMin(double[] data){
+        int length = data.length;
+        double min = data[0];
+        for(int i = 1; i <= length-1; i++){
+            if(data[i] < min){
+                min = data[i];
+            }
+        }
+        return min;
+    }
+
+    public static int getMaxIndex(double[] data){
+        int length = data.length;
+        int max = 0;
+        for(int i = 1; i <= length-1; i++){
+            if(data[i] > data[max]){
+                max = i;
+            }
+        }
+        return max;
+    }
+
+    public static int getMinIndex(double[] data){
+        int length = data.length;
+        int min = 0;
+        for(int i = 1; i <= length-1; i++){
+            if(data[i] < data[min]){
+                min = i;
+            }
+        }
+        return min;
     }
 }

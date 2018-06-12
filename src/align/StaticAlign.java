@@ -1,5 +1,7 @@
 package align;
 
+import evaluation.PI;
+import evaluation.SNR;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.AlignStaticAlign;
@@ -8,6 +10,8 @@ import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
+
+import static tools.CommonFunctions.hexStringTOIntArray;
 
 public class StaticAlign extends AlignToolBox{
 
@@ -21,12 +25,19 @@ public class StaticAlign extends AlignToolBox{
     private int baseCurveIndex;
     //显示进度使用
     private int currentStatus;
+    //SNR使用
+    private SNR snr;
+    private double[] snrResult;
+    //PI使用
+    private PI pi;
+    private double[] piResult;
 
 
     public ChartPanel excuteAlign(AlignStaticAlign alignStaticAlign, String resultPath, String lastMethod) throws IOException{
         getParametersFromPanel(alignStaticAlign);
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\StaticAlign.txt"));
+        BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
         //读取baseCurve
         for(int i = 1; i <=this.baseCurveIndex-1; i++){
             curveReader.readLine();
@@ -37,21 +48,34 @@ public class StaticAlign extends AlignToolBox{
         curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         for(int i = 1; i <= this.attackCurveStart-1; i++){
             curveReader.readLine();
+            plainReader.readLine();
         }
         //执行对齐
         double[] curve, result, originalTrace=null, newTrace=null;
+        int[] plain;
         for(int i = 1; i <= this.attackCurveNum; i++){
             curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
             result = excuteStaticAlign(base_trace, curve, maxWindow);
+            plain = hexStringTOIntArray(plainReader.readLine());
+            if(i == 1){
+                snr = new SNR(curve, result);
+                pi = new PI(curve, result, attackCurveNum);
+            }
+            snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
+            pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
             resultWriter.append(CommonFunctions.doubleArrayToString(result));
             if(i == 50){
                 originalTrace = curve;
                 newTrace = result;
             }
-            currentStatus = i;
+            currentStatus = i-1;
         }
         curveReader.close();
         resultWriter.close();
+        plainReader.close();
+        this.snrResult = snr.getMaxSNR();
+        this.piResult = pi.returnPI();
+        currentStatus++; //保证两个线程的同步！！！
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -84,6 +108,7 @@ public class StaticAlign extends AlignToolBox{
         this.attackSampleNum = Integer.parseInt(alignStaticAlign.sample_number_textfiled.getText());
         this.maxWindow = Integer.parseInt(alignStaticAlign.max_deviation_textfield.getText());
         this.baseCurveIndex = Integer.parseInt(alignStaticAlign.base_curve_index_textfield.getText());
+        this.snrResult = new double[2];
     }
 
     private double[] excuteStaticAlign(double[] base_trace, double[] trace, int max_deviation){
@@ -129,7 +154,15 @@ public class StaticAlign extends AlignToolBox{
             fenmu1 = fenmu1+(pc1[i]-aver1)*(pc1[i]-aver1);
             fenmu2 = fenmu2+(pc2[i]-aver1)*(pc2[i]-aver1);
         }
-        double cor = Math.abs(fenzi/Math.pow(fenmu1*fenmu2, 0.5));
-        return cor;
+        return Math.abs(fenzi/Math.pow(fenmu1*fenmu2, 0.5));
     }
+
+    public double[] getSNR(){
+        return this.snrResult;
+    }
+
+    public double[] getPI(){
+        return this.piResult;
+    }
+
 }

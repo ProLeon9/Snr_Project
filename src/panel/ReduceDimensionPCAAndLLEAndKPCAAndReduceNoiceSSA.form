@@ -89,7 +89,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="512"/>
+              <text value="1024"/>
             </properties>
           </component>
         </children>

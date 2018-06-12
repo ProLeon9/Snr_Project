@@ -10,4 +10,8 @@ public abstract class ReduceDimensionToolBox{
     public abstract int getProcessStatus();
 
     public abstract ChartPanel excuteReduceDimesion(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA, String resultPath, String lastMethod, String matlabPath) throws Exception;
+
+    public abstract double[] getSNR();
+
+    public abstract double[] getPI();
 }

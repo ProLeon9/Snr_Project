@@ -8,6 +8,7 @@ import location.LocationFactory;
 import location.LocationToolBox;
 import normalization.NormalizationFactory;
 import normalization.NormalizationToolBox;
+import normalization.ZScore;
 import org.jfree.chart.ChartPanel;
 import reducedimension.ReduceDimensionFactory;
 import reducedimension.ReduceDimensionToolBox;
@@ -438,7 +439,12 @@ public class MainWindow{
                 filePathDialog.setVisible(true);
 
                 configTheFilesPath(filePathDialog);
-                configResultPanel();
+                try{
+                    configResultPanel();
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
 
                 String locationMethod = figureOutLocationMethod();
                 LocationToolBox locationToolBox = new LocationFactory().createLocationToolBox(locationMethod);
@@ -506,7 +512,12 @@ public class MainWindow{
                 filePathDialog.setVisible(true);
 
                 configTheFilesPath(filePathDialog);
-                configResultPanel();
+                try{
+                    configResultPanel();
+                }
+                catch(InterruptedException e1){
+                    e1.printStackTrace();
+                }
 
                 // TODO:具体执行预处理过程
                 for(int i=0; i<=methodList.size()-1; i++){
@@ -809,9 +820,10 @@ public class MainWindow{
         plainPath = resultPath+"\\plain.txt";
     }
 
-    private void configResultPanel(){
-        tabbedPane1.setSelectedIndex(5);
+    private void configResultPanel() throws InterruptedException{
         mainWindow.ResultPicturePanel.removeAll();
+        tabbedPane1.setSelectedIndex(5);
+        Thread.sleep(100);
     }
 
     private String makeSureUseWhichFactory(String methodName){
@@ -886,11 +898,17 @@ public class MainWindow{
                 try{
                     resultChartPanel = staticAlign.excuteAlign(temp, resultPath, lastMethod);
                     lastMethod = "StaticAlign";
+                    double[] SNRReulst = staticAlign.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = staticAlign.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(InterruptedException | IOException e1){
                     e1.printStackTrace();
@@ -915,18 +933,24 @@ public class MainWindow{
             statusExecutor.submit(alignProcessStatusThread);
         }
         else if(Objects.equals(alignMethod, "动态对齐")){
-            DTW staticAlign = (DTW) alignToolBox;
+            DTW dtw = (DTW) alignToolBox;
             AlignDTWAndReduceNoicePOC temp = searchDTWAndPOCPanel("动态对齐");
             Thread alignProcessThread = new Thread(()->{
                 Thread.currentThread().setName("alignProcessThread");
                 try{
-                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath, lastMethod);
+                    resultChartPanel = dtw.excuteAlign(temp, resultPath, lastMethod);
                     lastMethod = "DTW"; //根据对应方法里写文件的名称
+                    double[] SNRReulst = dtw.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： "+ String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： "+ String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = dtw.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(InterruptedException | IOException e1){
                     e1.printStackTrace();
@@ -961,11 +985,17 @@ public class MainWindow{
                 try{
                     resultChartPanel = fft.excuteReduceNoice(temp, resultPath, lastMethod);
                     lastMethod = "FFT";
+                    double[] SNRReulst = fft.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = fft.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(InterruptedException | IOException e1){
                     e1.printStackTrace();
@@ -997,11 +1027,17 @@ public class MainWindow{
                 try{
                     resultChartPanel = poc.excuteReduceNoice(temp, resultPath, lastMethod);
                     lastMethod = "POC";
+                    double[] SNRReulst = poc.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = poc.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(InterruptedException | IOException e1){
                     e1.printStackTrace();
@@ -1033,11 +1069,17 @@ public class MainWindow{
                 try{
                     resultChartPanel = kalmanFilter.excuteReduceNoice(temp, resultPath, lastMethod);
                     lastMethod = "KalmanFilter";
+                    double[] SNRReulst = kalmanFilter.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = kalmanFilter.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(InterruptedException | IOException e1){
                     e1.printStackTrace();
@@ -1069,11 +1111,17 @@ public class MainWindow{
                 try{
                     resultChartPanel = ssa.excuteReduceDimesion(temp, resultPath, lastMethod, matlabPath);
                     lastMethod = "SSA";
+                    double[] SNRReulst = ssa.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = ssa.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -1106,11 +1154,17 @@ public class MainWindow{
             try{
                 resultChartPanel = reduceDimensionToolBox.excuteReduceDimesion(temp, resultPath, lastMethod, matlabPath);
                 lastMethod = reduceDimensionMethod;
+                double[] SNRReulst = reduceDimensionToolBox.getSNR();
+                mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                double[] PIReulst = reduceDimensionToolBox.getPI();
+                mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                 mainWindow.ResultPicturePanel.removeAll();
                 mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                 mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                 mainWindow.ResultPicturePanel.updateUI();
-                Thread.sleep(3);
+                Thread.sleep(300);
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -1137,17 +1191,24 @@ public class MainWindow{
 
     private void excuteConcreterNormalization(NormalizationToolBox normalizationToolBox, String normalizationMethod){
         if(Objects.equals(normalizationMethod, "Z-Score")){
+            ZScore zScore = (ZScore) normalizationToolBox;
             ReduceNoiceFFTAndNormalizationZScore temp = searchFFTAndZscorePanel("Z-Score");
             Thread normalizationProcessThread = new Thread(()->{
                 Thread.currentThread().setName("normalizationProcessThread");
                 try{
-                    resultChartPanel = normalizationToolBox.excuteNormalization(temp, resultPath, lastMethod);
+                    resultChartPanel = zScore.excuteNormalization(temp, resultPath, lastMethod);
                     lastMethod = "Z-Score";
+                    double[] SNRReulst = zScore.getSNR();
+                    mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
+                    mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
+                    double[] PIReulst = zScore.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(3);
+                    Thread.sleep(300);
                 }
                 catch(InterruptedException | IOException e1){
                     e1.printStackTrace();

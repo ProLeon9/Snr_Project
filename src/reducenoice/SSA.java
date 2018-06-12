@@ -1,5 +1,7 @@
 package reducenoice;
 
+import evaluation.PI;
+import evaluation.SNR;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSA;
@@ -11,6 +13,9 @@ import tools.graph.util.ChartUtils;
 
 import java.io.*;
 
+import static tools.CommonFunctions.doubleStringToDoubleArray;
+import static tools.CommonFunctions.hexStringTOIntArray;
+
 public class SSA extends ReduceNoiceToolBox{
     //曲线相关参数
     private int attackSampleNum;
@@ -21,6 +26,12 @@ public class SSA extends ReduceNoiceToolBox{
     private int slideWindowNum;
     //显示进度相关参数
     private int currentStatus;
+    //SNR使用
+    private SNR snr;
+    private double[] snrResult;
+    //PI使用
+    private PI pi;
+    private double[] piResult;
 
 
     @Override
@@ -47,7 +58,7 @@ public class SSA extends ReduceNoiceToolBox{
         for(int i = 1; i <= this.attackCurveNum; i++){
             curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
             resultWriter.append(CommonFunctions.doubleArrayToString(curve));
-            currentStatus = i;
+            currentStatus = i-1;
             if(i == 50){
                 originalTrace = curve;
             }
@@ -63,10 +74,10 @@ public class SSA extends ReduceNoiceToolBox{
 
         File file = new File(System.getProperty("user.dir")+"\\done.txt");
         while(!file.exists()){
-            Thread.sleep(500);
+            Thread.sleep(100);
         }
         file.delete();
-        Thread.sleep(500);
+        Thread.sleep(100);
         // 读取处理后曲线的第50条
         BufferedReader newCurveReader = new BufferedReader(new FileReader(resultPath + "\\SSA.txt"));
         for(int i = 1; i <= 50; i++){
@@ -75,8 +86,41 @@ public class SSA extends ReduceNoiceToolBox{
                 newTrace = curve;
             }
         }
+
+        //计算SNR和PI-----------------
+        BufferedReader oldCurveReader = new BufferedReader(new FileReader(resultPath+"\\SSA_old.txt"));
+        BufferedReader resultReader = new BufferedReader(new FileReader(resultPath+"\\SSA.txt"));
+        BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
+        //剔除不用的Curve
+        for(int i = 1; i <= this.attackCurveStart-1; i++){
+            plainReader.readLine();
+        }
+        //执行SNR
+        double[] result = null;
+        int[] plain = null;
+        for(int i = 1; i <= this.attackCurveNum; i++){
+            curve = doubleStringToDoubleArray(oldCurveReader.readLine());
+            result = doubleStringToDoubleArray(resultReader.readLine());
+            plain = hexStringTOIntArray(plainReader.readLine());
+            if(i == 1){
+                snr = new SNR(curve, result);
+                pi = new PI(curve, result, attackCurveNum);
+            }
+            snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
+            pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
+            currentStatus = i/2 + attackCurveNum/2 - 1;
+        }
+        //计算SNR和PI-----------------
+        oldCurveReader.close();
+        resultReader.close();
+        plainReader.close();
+        this.snrResult = snr.getMaxSNR();
+        this.piResult = pi.returnPI();
+        currentStatus += 1; //为了保证执行线程和更新线程在同一个处理方式时保持同步！！！
+
         file = new File(resultPath+"\\"+"SSA_old.txt");
         file.delete();
+        Thread.sleep(100);
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -106,4 +150,13 @@ public class SSA extends ReduceNoiceToolBox{
         String comstr = matlabPath+" -nosplash -nodesktop -nodisplay -r \""+"wavePath=\'"+resultPath+"\\"+"\',N="+this.slideWindowNum+";"+"runSSA\"";
         Runtime.getRuntime().exec(comstr);
     }
+
+    public double[] getSNR(){
+        return this.snrResult;
+    }
+
+    public double[] getPI(){
+        return this.piResult;
+    }
+
 }

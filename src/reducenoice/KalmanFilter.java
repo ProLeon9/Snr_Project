@@ -1,5 +1,7 @@
 package reducenoice;
 
+import evaluation.PI;
+import evaluation.SNR;
 import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.ReduceNoiceKalmanFilter;
@@ -8,6 +10,8 @@ import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
+
+import static tools.CommonFunctions.hexStringTOIntArray;
 
 public class KalmanFilter extends ReduceNoiceToolBox{
 
@@ -26,6 +30,12 @@ public class KalmanFilter extends ReduceNoiceToolBox{
     private double KG;                   // kalmen gian
     //显示进度使用
     private int currentStatus;
+    //SNR使用
+    private SNR snr;
+    private double[] snrResult;
+    //PI使用
+    private PI pi;
+    private double[] piResult;
 
 
     public ChartPanel excuteReduceNoice(ReduceNoiceKalmanFilter reduceNoiceKalmanFilter, String resultPath, String lastMethod) throws IOException{
@@ -33,24 +43,38 @@ public class KalmanFilter extends ReduceNoiceToolBox{
         getParametersFromPanel(reduceNoiceKalmanFilter);
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\KalmanFilter.txt"));
+        BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
         //剔除不用的Curve
         for(int i = 1; i <= this.attackCurveStart-1; i++){
             curveReader.readLine();
+            plainReader.readLine();
         }
         //执行降噪
         double[] curve, result, originalTrace = null, newTrace = null;
+        int[] plain;
         for(int i = 1; i <= this.attackCurveNum; i++){
             curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
             result = excuteKalmanFilter(curve);
+            plain = hexStringTOIntArray(plainReader.readLine());
+            if(i == 1){
+                snr = new SNR(curve, result);
+                pi = new PI(curve, result, attackCurveNum);
+            }
+            snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
+            pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
             resultWriter.append(CommonFunctions.doubleArrayToString(result));
             if(i == 50){
                 originalTrace = curve;
                 newTrace = result;
             }
-            currentStatus = i;
+            currentStatus = i-1;
         }
         curveReader.close();
         resultWriter.close();
+        plainReader.close();
+        this.snrResult = snr.getMaxSNR();
+        this.piResult = pi.returnPI();
+        currentStatus++;  //保证两个线程的同步！！！
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -110,4 +134,13 @@ public class KalmanFilter extends ReduceNoiceToolBox{
         this.P = (1-this.KG*H)*predictP;
         return KalmenValue;
     }
+
+    public double[] getSNR(){
+        return this.snrResult;
+    }
+
+    public double[] getPI(){
+        return this.piResult;
+    }
+
 }
