@@ -10,6 +10,8 @@ import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static tools.CommonFunctions.hexStringTOIntArray;
 
@@ -99,6 +101,16 @@ public class DTW extends AlignToolBox{
             return currentStatus;
         else
             return -1;
+    }
+
+    @Override
+    public List<double[]> getSNRAndPI(){
+        List<double[]> result = new ArrayList<>();
+        result.add(snr.getBeforeSNR());
+        result.add(snr.getAfterSNR());
+        result.add(pi.getBeforePI());
+        result.add(pi.getAfterPI());
+        return result;
     }
 
     private void getParametersFromPanel(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC){

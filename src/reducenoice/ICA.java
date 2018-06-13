@@ -12,6 +12,8 @@ import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static tools.CommonFunctions.doubleStringToDoubleArray;
 import static tools.CommonFunctions.hexStringTOIntArray;
@@ -165,4 +167,14 @@ public class ICA extends ReduceNoiceToolBox{
     public double[] getPI(){
         return this.piResult;
     }
+
+    public List<double[]> getSNRAndPI(){
+        List<double[]> result = new ArrayList<>();
+        result.add(snr.getBeforeSNR());
+        result.add(snr.getAfterSNR());
+        result.add(pi.getBeforePI());
+        result.add(pi.getAfterPI());
+        return result;
+    }
+
 }

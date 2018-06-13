@@ -106,4 +106,12 @@ public class SNR{
         return result;
     }
 
+    public double[] getBeforeSNR(){
+        return this.SNRBefore;
+    }
+
+    public double[] getAfterSNR(){
+        return this.SNRAfter;
+    }
+
 }

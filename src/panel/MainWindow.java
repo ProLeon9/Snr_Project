@@ -4,18 +4,30 @@ import align.AlignFactory;
 import align.AlignToolBox;
 import align.DTW;
 import align.StaticAlign;
+import com.itextpdf.text.*;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.pdf.CMYKColor;
+import com.itextpdf.text.pdf.PdfWriter;
 import location.LocationFactory;
 import location.LocationToolBox;
 import normalization.NormalizationFactory;
 import normalization.NormalizationToolBox;
 import normalization.ZScore;
 import org.jfree.chart.ChartPanel;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.data.xy.XYDataset;
 import reducedimension.ReduceDimensionFactory;
 import reducedimension.ReduceDimensionToolBox;
 import reducenoice.*;
+import tools.graph.chart.XYLineChart;
+import tools.graph.util.ChartUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.Font;
+
+
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -105,6 +117,11 @@ public class MainWindow{
     private static String lastMethod; // 存放上次进行的预处理方法，便于使用下一个方法时找到文件
     private static ExecutorService preprocessExecutor; // 存放预处理执行线程，使依次执行
     private static ExecutorService statusExecutor; // 存放更新界面线程，使和预处理线程对应并发执行
+    private static List<double[]> SNRBeforeResult;  //存放处理前snr值
+    private static List<double[]> SNRAfterResult;  //存放处理后snr值
+    private static List<double[]> PIBeforeResult;  //存放处理前pi值
+    private static List<double[]> PIAfterResult;  //存放处理后pi值
+    private static List<double[]> SnrANdPiTemp; //暂时存放当前结果
 
 
     private MainWindow(){
@@ -535,12 +552,24 @@ public class MainWindow{
                         e1.printStackTrace();
                     }
                 }
+                Thread getReportThread = new Thread(()->{
+                    Thread.currentThread().setName("getResultReportThread");
+                    makePictureToComputer();
+                    try{
+                        createReport();
+                        Thread.sleep(300);
+                    }
+                    catch(InterruptedException | IOException | DocumentException e1){
+                        e1.printStackTrace();
+                    }
+                });
+                preprocessExecutor.submit(getReportThread);
             }
         });
     }
 
     private void setFrameContribution(JFrame frame, MainWindow mainWindow){
-        Image icon = Toolkit.getDefaultToolkit().getImage("");
+        java.awt.Image icon = Toolkit.getDefaultToolkit().getImage("");
         frame.setIconImage(icon);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize(); // get the screen size
         frame.setBounds((int) (screenSize.width*0.125), (int) (screenSize.height*0.15), (int) (screenSize.width*0.75), (int) (screenSize.height*0.7));
@@ -914,6 +943,8 @@ public class MainWindow{
                     double[] PIReulst = staticAlign.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = staticAlign.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -956,6 +987,8 @@ public class MainWindow{
                     double[] PIReulst = dtw.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = dtw.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1001,6 +1034,8 @@ public class MainWindow{
                     double[] PIReulst = fft.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = fft.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1043,6 +1078,8 @@ public class MainWindow{
                     double[] PIReulst = poc.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = poc.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1085,6 +1122,8 @@ public class MainWindow{
                     double[] PIReulst = kalmanFilter.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = kalmanFilter.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1127,6 +1166,8 @@ public class MainWindow{
                     double[] PIReulst = ssa.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = ssa.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1170,6 +1211,8 @@ public class MainWindow{
                     double[] PIReulst = ica.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = ica.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1213,6 +1256,8 @@ public class MainWindow{
                 double[] PIReulst = reduceDimensionToolBox.getPI();
                 mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                 mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                List<double[]> SPresult = reduceDimensionToolBox.getSNRAndPI();
+                saveSNRAndPIResult(SPresult);
                 mainWindow.ResultPicturePanel.removeAll();
                 mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                 mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1257,6 +1302,8 @@ public class MainWindow{
                     double[] PIReulst = zScore.getPI();
                     mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
                     mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    List<double[]> SPresult = zScore.getSNRAndPI();
+                    saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
@@ -1311,6 +1358,129 @@ public class MainWindow{
         return null; //TODO: 抛出异常
     }
 
+    private void createReport() throws DocumentException, IOException{
+        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.COURIER, 30, Font.BOLD, new CMYKColor(0, 255, 0, 0));
+        com.itextpdf.text.Font headFont = FontFactory.getFont(FontFactory.COURIER, 24, Font.PLAIN, new CMYKColor(255, 255, 255, 0));
+        com.itextpdf.text.Font contentFont = FontFactory.getFont(FontFactory.COURIER, 18, Font.ITALIC, new CMYKColor(255, 255, 255, 0));
+        //创建文件
+        Document document = new Document();
+        //建立一个书写器
+        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(resultPath + "\\Report.pdf"));
+        //打开文件
+        document.open();
+        ///设置属性///
+        //标题
+        document.addTitle("Preprocess Report");
+        //作者
+        document.addAuthor("Leon");
+        //主题
+        document.addSubject("Preprocess reuslt");
+        //关键字
+        document.addKeywords("Preprocess");
+        //创建时间
+        document.addCreationDate();
+        //添加标题
+        Paragraph title = new Paragraph("Preprocess Report", titleFont);
+        title.setAlignment(1);
+        document.add(title);
+        //添加内容(Method)
+        Paragraph head = new Paragraph("Used Methods", headFont);
+        document.add(title);
+        ZapfDingbatsList zapfDingbatsList = new ZapfDingbatsList(43, 30);
+        for(int i=0; i<= methodList.size()-1; i++){
+            zapfDingbatsList.add(new ListItem(methodList.get(i), contentFont));
+        }
+        document.add(zapfDingbatsList);
+        //添加内容（图像）
+        for(int i=0; i<=methodList.size()-1; i++){
+            String method = methodList.get(i);
+            method = changeToEnglish(method);
+            Paragraph content = new Paragraph("After:"+method, contentFont);
+            document.add(content);
+            content = new Paragraph("snr", contentFont);
+            title.setAlignment(1);
+            document.add(content);
+            //Add Image
+            Image image1 = Image.getInstance(resultPath+"\\snr"+i+".jpg");
+            //Fixed Positioning
+            image1.setAbsolutePosition(100f, 550f);
+            //Scale to new height and new width of image
+            image1.scaleAbsolute(200, 200);
+            //Add to document
+            document.add(image1);
+            content = new Paragraph("pi", contentFont);
+            title.setAlignment(1);
+            document.add(content);
+            Image image2 = Image.getInstance(resultPath+"\\pi"+i+".jpg");
+            image2.setAbsolutePosition(100f, 550f);
+            image2.scaleAbsolute(200, 200);
+            document.add(image2);
+        }
+        document.close();
+        writer.close();
+    }
+
+    private void saveSNRAndPIResult(List<double[]> SPresult){
+        SNRBeforeResult.add(SPresult.get(0));
+        SNRAfterResult.add(SPresult.get(1));
+        PIBeforeResult.add(SPresult.get(2));
+        PIAfterResult.add(SPresult.get(3));
+    }
+
+    private void makePictureToComputer(){
+        for(int i=0; i<=SNRBeforeResult.size()-1; i++){
+            double[] snrBefore = SNRBeforeResult.get(i);
+            double[] snrAfter = SNRAfterResult.get(i);
+            int[] xris = new int[snrBefore.length];
+            double[][] yris = new double[2][snrBefore.length];
+
+            assert snrAfter != null;
+            System.arraycopy(snrBefore, 0, yris[0], 0, xris.length);
+            System.arraycopy(snrAfter, 0, yris[1], 0, xris.length);
+            XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_snr", "new_snr"});
+            XYLineChart xyLineChart = new XYLineChart();
+            ChartPanel resultChartPanel = xyLineChart.getChart("Result", "Sample", "SNR", xyDataset, true);
+            JFreeChart result = resultChartPanel.getChart();
+            try {
+                ChartUtilities.saveChartAsJPEG(new File(resultPath + "\\snr" + i + ".jpg"), result, 550, 250);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        for(int i=0; i<=PIBeforeResult.size()-1; i++){
+            double[] piBefore = PIBeforeResult.get(i);
+            double[] piAfter = PIAfterResult.get(i);
+            int[] xris = new int[piBefore.length];
+            double[][] yris = new double[2][piBefore.length];
+
+            assert piAfter != null;
+            System.arraycopy(piBefore, 0, yris[0], 0, xris.length);
+            System.arraycopy(piAfter, 0, yris[1], 0, xris.length);
+            XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_pi", "new_pi"});
+            XYLineChart xyLineChart = new XYLineChart();
+            ChartPanel resultChartPanel = xyLineChart.getChart("Result", "Sample", "PI", xyDataset, true);
+            JFreeChart result = resultChartPanel.getChart();
+            try {
+                ChartUtilities.saveChartAsPNG(new File(resultPath + "\\pi" + i + ".jpg"), result, 550, 250);
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private String changeToEnglish(String method){
+        if(Objects.equals(method, "静态对齐"))
+            return "Static Align";
+        else if(Objects.equals(method, "动态对齐"))
+            return "DTW";
+        else if(Objects.equals(method, "卡尔曼滤波"))
+            return "Kalman Filter";
+        else
+            return method;
+    }
+
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException{
         // 设置UIManager
         UIManager.setLookAndFeel("com.bulenkov.darcula.DarculaLaf");
@@ -1332,6 +1502,10 @@ public class MainWindow{
         preprocessExecutor = Executors.newSingleThreadExecutor();
         statusExecutor = Executors.newSingleThreadExecutor();
         lastMethod = "wave";
+        SNRBeforeResult = new ArrayList<>();
+        SNRAfterResult = new ArrayList<>();
+        PIBeforeResult = new ArrayList<>();
+        PIAfterResult = new ArrayList<>();
 
         // 设置frame属性并显示
         mainWindow.setFrameContribution(frame, mainWindow);

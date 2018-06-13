@@ -299,4 +299,12 @@ public class PI{
         return result;
     }
 
+    public double[] getBeforePI(){
+        return this.originalIOL;
+    }
+
+    public double[] getAfterPI(){
+        return this.newIOL;
+    }
+
 }
