@@ -5,9 +5,6 @@ import align.AlignToolBox;
 import align.DTW;
 import align.StaticAlign;
 import com.itextpdf.text.*;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.pdf.CMYKColor;
-import com.itextpdf.text.pdf.PdfWriter;
 import location.LocationFactory;
 import location.LocationToolBox;
 import normalization.NormalizationFactory;
@@ -20,6 +17,8 @@ import org.jfree.data.xy.XYDataset;
 import reducedimension.ReduceDimensionFactory;
 import reducedimension.ReduceDimensionToolBox;
 import reducenoice.*;
+import tools.DrawCurve;
+import tools.GenerateReoport;
 import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
@@ -32,6 +31,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -554,7 +554,6 @@ public class MainWindow{
                 }
                 Thread getReportThread = new Thread(()->{
                     Thread.currentThread().setName("getResultReportThread");
-                    makePictureToComputer();
                     try{
                         createReport();
                         Thread.sleep(300);
@@ -1359,7 +1358,7 @@ public class MainWindow{
     }
 
     private void createReport() throws DocumentException, IOException{
-        com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.COURIER, 30, Font.BOLD, new CMYKColor(0, 255, 0, 0));
+        /*com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.COURIER, 30, Font.BOLD, new CMYKColor(0, 255, 0, 0));
         com.itextpdf.text.Font headFont = FontFactory.getFont(FontFactory.COURIER, 24, Font.PLAIN, new CMYKColor(255, 255, 255, 0));
         com.itextpdf.text.Font contentFont = FontFactory.getFont(FontFactory.COURIER, 18, Font.ITALIC, new CMYKColor(255, 255, 255, 0));
         //创建文件
@@ -1401,7 +1400,7 @@ public class MainWindow{
             title.setAlignment(1);
             document.add(content);
             //Add Image
-            Image image1 = Image.getInstance(resultPath+"\\snr"+i+".jpg");
+            Image image1 = Image.getInstance(resultPath+"\\snr"+i+".png");
             //Fixed Positioning
             image1.setAbsolutePosition(100f, 550f);
             //Scale to new height and new width of image
@@ -1411,13 +1410,23 @@ public class MainWindow{
             content = new Paragraph("pi", contentFont);
             title.setAlignment(1);
             document.add(content);
-            Image image2 = Image.getInstance(resultPath+"\\pi"+i+".jpg");
+            Image image2 = Image.getInstance(resultPath+"\\pi"+i+".png");
             image2.setAbsolutePosition(100f, 550f);
             image2.scaleAbsolute(200, 200);
             document.add(image2);
         }
         document.close();
-        writer.close();
+        writer.close();*/
+        DrawCurve dc = new DrawCurve();
+        BufferedImage[][] result_image = new BufferedImage[methodList.size()][4];
+        for(int i=0; i<=methodList.size()-1; i++){
+            result_image[i][0] = dc.generateImage(SNRBeforeResult.get(i));
+            result_image[i][1] = dc.generateImage(SNRAfterResult.get(i));
+            result_image[i][2] = dc.generateImage(PIBeforeResult.get(i));
+            result_image[i][3] = dc.generateImage(PIAfterResult.get(i));
+        }
+        GenerateReoport rg = new GenerateReoport();
+        rg.writeReport(resultPath, methodList, result_image);
     }
 
     private void saveSNRAndPIResult(List<double[]> SPresult){
@@ -1441,12 +1450,7 @@ public class MainWindow{
             XYLineChart xyLineChart = new XYLineChart();
             ChartPanel resultChartPanel = xyLineChart.getChart("Result", "Sample", "SNR", xyDataset, true);
             JFreeChart result = resultChartPanel.getChart();
-            try {
-                ChartUtilities.saveChartAsJPEG(new File(resultPath + "\\snr" + i + ".jpg"), result, 550, 250);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            saveAsFile(result, resultPath + "\\snr" + i + ".png", 720, 300);
         }
         for(int i=0; i<=PIBeforeResult.size()-1; i++){
             double[] piBefore = PIBeforeResult.get(i);
@@ -1461,24 +1465,36 @@ public class MainWindow{
             XYLineChart xyLineChart = new XYLineChart();
             ChartPanel resultChartPanel = xyLineChart.getChart("Result", "Sample", "PI", xyDataset, true);
             JFreeChart result = resultChartPanel.getChart();
-            try {
-                ChartUtilities.saveChartAsPNG(new File(resultPath + "\\pi" + i + ".jpg"), result, 550, 250);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            saveAsFile(result, resultPath + "\\pi" + i + ".png", 720, 300);
         }
     }
 
-    private String changeToEnglish(String method){
-        if(Objects.equals(method, "静态对齐"))
-            return "Static Align";
-        else if(Objects.equals(method, "动态对齐"))
-            return "DTW";
-        else if(Objects.equals(method, "卡尔曼滤波"))
-            return "Kalman Filter";
-        else
-            return method;
+    private static void saveAsFile(JFreeChart chart, String outputPath,
+                                  int weight, int height) {
+        FileOutputStream out = null;
+        try {
+            File outFile = new File(outputPath);
+            if (!outFile.getParentFile().exists()) {
+                outFile.getParentFile().mkdirs();
+            }
+            out = new FileOutputStream(outputPath);
+            // 保存为PNG文件
+            ChartUtilities.writeChartAsPNG(out, chart, weight, height);
+            // 保存为JPEG文件
+            //ChartUtilities.writeChartAsJPEG(out, chart, 500, 400);
+            out.flush();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    // do nothing
+                }
+            }
+        }
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException{
