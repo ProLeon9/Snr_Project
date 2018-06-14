@@ -64,7 +64,11 @@ public class SNR{
                 varSum += (EX2Original[k][i]-EXOriginal[k][i]*EXOriginal[k][i]);
             }
             double noice = varSum/256;
-            SNRBefore[i] = signal/noice;
+            double tempResult = signal/noice;
+            if(Double.isNaN(tempResult))
+                SNRBefore[i] = SNRBefore[i-1];
+            else
+                SNRBefore[i] = Math.abs(tempResult);
         }
 
         for(int i = 0; i <= SNRAfter.length-1; i++){
@@ -78,7 +82,11 @@ public class SNR{
                 varSum += (EX2New[k][i]-EXNew[k][i]*EXNew[k][i]);
             }
             double noice = varSum/256;
-            SNRAfter[i] = signal/noice;
+            double tempResult = signal/noice;
+            if(Double.isNaN(tempResult))
+                SNRAfter[i] = SNRAfter[i-1];
+            else
+                SNRAfter[i] = Math.abs(tempResult);
         }
 
         double[] result = new double[2];

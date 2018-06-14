@@ -120,7 +120,7 @@ public class PCA extends ReduceDimensionToolBox{
         plainReader.close();
         this.snrResult = snr.getMaxSNR();
         this.piResult = pi.returnPI();
-        currentStatus += 1; //为了保证执行线程和更新线程在同一个处理方式时保持同步！！！
+
 
         file = new File(resultPath+"\\"+"PCA_old.txt");
         file.delete();
@@ -139,6 +139,7 @@ public class PCA extends ReduceDimensionToolBox{
         XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_trace", "new_trace"});
         XYLineChart xyLineChart = new XYLineChart();
         super.resultChartPanel = xyLineChart.getChart("PCA Result", "Sample", "Value", xyDataset, true);
+        currentStatus += 1; //为了保证执行线程和更新线程在同一个处理方式时保持同步！！！
         return super.resultChartPanel;
     }
 

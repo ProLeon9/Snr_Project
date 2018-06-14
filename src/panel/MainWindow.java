@@ -557,6 +557,7 @@ public class MainWindow{
                     try{
                         createReport();
                         Thread.sleep(300);
+                        test();
                     }
                     catch(InterruptedException | IOException | DocumentException e1){
                         e1.printStackTrace();
@@ -861,7 +862,6 @@ public class MainWindow{
     private void configResultPanel() throws InterruptedException{
         mainWindow.ResultPicturePanel.removeAll();
         tabbedPane1.setSelectedIndex(5);
-        Thread.sleep(100);
     }
 
     private String makeSureUseWhichFactory(String methodName){
@@ -1002,7 +1002,7 @@ public class MainWindow{
             Thread alignProcessStatusThread = new Thread(()->{
                 Thread.currentThread().setName("alignProcessStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+                    Thread.sleep(900); //等待locationProcessThread中excuteLocation配置好attackNumber
                     while(alignToolBox.getProcessStatus() > 0){
                         mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(alignToolBox.getProcessStatus() + 1));
                         Thread.sleep(1); //尽量小一些，保证可以读取到999
@@ -1495,6 +1495,10 @@ public class MainWindow{
                 }
             }
         }
+    }
+
+    private void test(){
+
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException{

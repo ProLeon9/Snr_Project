@@ -75,7 +75,7 @@ public class POC extends ReduceNoiceToolBox{
         plainReader.close();
         this.snrResult = snr.getMaxSNR();
         this.piResult = pi.returnPI();
-        currentStatus++;  //保证两个线程的同步！！！
+
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -90,6 +90,7 @@ public class POC extends ReduceNoiceToolBox{
         XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_trace", "new_trace"});
         XYLineChart xyLineChart = new XYLineChart();
         super.resultChartPanel = xyLineChart.getChart("POC Result", "Sample", "Value", xyDataset, true);
+        currentStatus++;  //保证两个线程的同步！！！
         return super.resultChartPanel;
     }
 
@@ -157,7 +158,11 @@ public class POC extends ReduceNoiceToolBox{
         ifft_tmp = FFTInPOC.ifft(tmp);
         double[] ret = new double[fft_size];
         for(int i = 0; i < fft_size; ++i){
-            ret[i] = ifft_tmp[i].re();//fft_size;
+            double tempResult = ifft_tmp[i].re();//fft_size;
+            if(Double.isNaN(tempResult))
+                ret[i] = ret[i-1];
+            else
+                ret[i] = tempResult;
         }
         return ret;
     }

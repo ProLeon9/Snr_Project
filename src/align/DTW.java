@@ -77,7 +77,7 @@ public class DTW extends AlignToolBox{
         plainReader.close();
         this.snrResult = snr.getMaxSNR();
         this.piResult = pi.returnPI();
-        currentStatus++;   //保证两个线程的同步！！！
+
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -92,6 +92,7 @@ public class DTW extends AlignToolBox{
         XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_trace", "new_trace"});
         XYLineChart xyLineChart = new XYLineChart();
         super.resultChartPanel = xyLineChart.getChart("DTW Result", "Sample", "Value", xyDataset, true);
+        currentStatus += 1; //为了保证执行线程和更新线程在同一个处理方式时保持同步！！！
         return super.resultChartPanel;
     }
 
@@ -146,7 +147,11 @@ public class DTW extends AlignToolBox{
                 x_flag = i;
             }
             else{
-                pc[i] = base_trace[F[x_flag+1][1]];
+                double tempReuslt =  base_trace[F[x_flag+1][1]];
+                if(Double.isNaN(tempReuslt))
+                    pc[i] = pc[i-1];
+                else
+                    pc[i] = tempReuslt;
             }
         }
         for(int i = 0; i < base_trace_length; i++){

@@ -76,7 +76,7 @@ public class KalmanFilter extends ReduceNoiceToolBox{
         plainReader.close();
         this.snrResult = snr.getMaxSNR();
         this.piResult = pi.returnPI();
-        currentStatus++;  //保证两个线程的同步！！！
+
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -91,6 +91,7 @@ public class KalmanFilter extends ReduceNoiceToolBox{
         XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_trace", "new_trace"});
         XYLineChart xyLineChart = new XYLineChart();
         super.resultChartPanel = xyLineChart.getChart("KalmanFilter Result", "Sample", "Value", xyDataset, true);
+        currentStatus++;  //保证两个线程的同步！！！
         return super.resultChartPanel;
     }
 

@@ -1,5 +1,7 @@
 package evaluation;
 
+import panel.MainWindow;
+
 import static tools.CommonFunctions.getMax;
 import static tools.CommonFunctions.getMaxIndex;
 
@@ -18,7 +20,7 @@ public class PI{
     public PI(double[] originalTrace, double[] newTrace, int traceNumber){
         this.middle = new int[traceNumber][16];
         this.originalTrace = new double[traceNumber][originalTrace.length];
-        this.newTrace = new double[traceNumber][originalTrace.length];
+        this.newTrace = new double[traceNumber][newTrace.length];
         this.numOfCurve = traceNumber;
         this.currentNumber = 0;
         this.originalIOL = new double[originalTrace.length];
@@ -142,7 +144,7 @@ public class PI{
                 if(HOL[i] != 0){
                     HOL[i] = 0-HOL[i];
                 }
-                ILO[i] = HO[i]-HOL[i];
+                ILO[i] = Math.abs(HO[i]-HOL[i]);
             }
             else{
                 ILO[i] = 0;
@@ -260,7 +262,7 @@ public class PI{
                 if(HOL[i] != 0){
                     HOL[i] = 0-HOL[i];
                 }
-                ILO[i] = HO[i]-HOL[i];
+                ILO[i] = Math.abs(HO[i]-HOL[i]);
             }
             else{
                 ILO[i] = 0;

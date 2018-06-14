@@ -46,7 +46,7 @@ public class FFT extends ReduceNoiceToolBox{
             plainReader.readLine();
         }
         //执行降噪
-        double[] curve, result, originalTrace=null, newTrace=null;
+        double[] curve, result, originalTrace = null, newTrace = null;
         int[] plain;
         for(int i = 1; i <= this.attackCurveNum; i++){
             curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
@@ -70,7 +70,7 @@ public class FFT extends ReduceNoiceToolBox{
         plainReader.close();
         this.snrResult = snr.getMaxSNR();
         this.piResult = pi.returnPI();
-        currentStatus++;  //保证两个线程的同步！！！
+
         //执行作图
         int[] xris = new int[this.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
@@ -85,15 +85,18 @@ public class FFT extends ReduceNoiceToolBox{
         XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_trace", "new_trace"});
         XYLineChart xyLineChart = new XYLineChart();
         super.resultChartPanel = xyLineChart.getChart("FFT Result", "Sample", "Value", xyDataset, true);
+        currentStatus++;  //保证两个线程的同步！！！
         return super.resultChartPanel;
     }
 
     @Override
     public int getProcessStatus(){
-        if(currentStatus < this.attackCurveNum)
+        if(currentStatus < this.attackCurveNum){
             return currentStatus;
-        else
+        }
+        else{
             return -1;
+        }
     }
 
     private void getParametersFromPanel(ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore){
@@ -145,12 +148,16 @@ public class FFT extends ReduceNoiceToolBox{
 
         double[] fftpower = new double[j/2];
         for(int i = 0; i < Xr.length/2; i++){
-            fftpower[i] = 2*Math.pow(Math.pow(Xr[i], 2.0)+Math.pow(Xi[i], 2.0), 0.5);
+            double tempResult = 2*Math.pow(Math.pow(Xr[i], 2.0)+Math.pow(Xi[i], 2.0), 0.5);
+            if(Double.isNaN(tempResult))
+                fftpower[i] = fftpower[i-1];
+            else
+                fftpower[i] = tempResult;
         }
         fftpower[0] = 0; //第一个位置无效
 
 		/*
-		double[] fftpower = new double[j/2-1];
+        double[] fftpower = new double[j/2-1];
 		for(int i=0;i<fftpower.length;i++)
 			fftpower[i]=Math.pow(Math.pow(Xr[i+1], 2.0) +Math.pow(Xi[i+1], 2.0),0.5);
 */
