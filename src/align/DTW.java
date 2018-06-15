@@ -6,33 +6,25 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.AlignDTWAndReduceNoicePOC;
 import tools.CommonFunctions;
+import tools.Curve;
 import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import static tools.CommonFunctions.hexStringTOIntArray;
 
 public class DTW extends AlignToolBox{
 
-    //曲线相关参数
-    private int attackSampleNum;
-    private int attackSampleStart;
-    private int attackCurveStart;
-    private int attackCurveNum;
-    //DTW相关参数
-    private int baseCurveIndex;
+    private Curve curve;
+
     private int[][] F;
     //显示进度使用
     private int currentStatus;
-    //SNR使用
-    private SNR snr;
-    private double[] snrResult;
-    //PI使用
-    private PI pi;
-    private double[] piResult;
+
+    DTW(){
+        this.curve = new Curve();
+    }
 
 
     public ChartPanel excuteAlign(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC, String resultPath, String lastMethod) throws IOException{
@@ -41,27 +33,27 @@ public class DTW extends AlignToolBox{
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\DTW.txt"));
         BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
         //读取baseCurve
-        for(int i = 1; i <=this.baseCurveIndex-1; i++){
+        for(int i = 1; i <= curve.baseCurveIndex-1; i++){
             curveReader.readLine();
         }
-        double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
+        double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), curve.attackSampleNum, this.curve.attackSampleStart-1);
         curveReader.close();
         //剔除不用的Curve
         curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
-        for(int i = 1; i <= this.attackCurveStart-1; i++){
+        for(int i = 1; i <= curve.attackCurveStart-1; i++){
             curveReader.readLine();
             plainReader.readLine();
         }
         //执行对齐
-        double[] curve, result, originalTrace=null, newTrace=null;
+        double[] curve, result, originalTrace = null, newTrace = null;
         int[] plain;
-        for(int i = 1; i <= this.attackCurveNum; i++){
-            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
+        for(int i = 1; i <= this.curve.attackCurveNum; i++){
+            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.curve.attackSampleNum, this.curve.attackSampleStart-1);
             result = excuteDTW(base_trace, curve);
             plain = hexStringTOIntArray(plainReader.readLine());
             if(i == 1){
                 snr = new SNR(curve, result);
-                pi = new PI(curve, result, attackCurveNum);
+                pi = new PI(curve, result, this.curve.attackCurveNum);
             }
             snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
             pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
@@ -79,11 +71,11 @@ public class DTW extends AlignToolBox{
         this.piResult = pi.returnPI();
 
         //执行作图
-        int[] xris = new int[this.attackSampleNum];
+        int[] xris = new int[this.curve.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
-            xris[i] = i+this.attackSampleStart;
+            xris[i] = i+this.curve.attackSampleStart;
         }
-        double[][] yris = new double[2][this.attackSampleNum];
+        double[][] yris = new double[2][this.curve.attackSampleNum];
 
         assert originalTrace != null;
         assert newTrace != null;
@@ -98,28 +90,20 @@ public class DTW extends AlignToolBox{
 
     @Override
     public int getProcessStatus(){
-        if(currentStatus < this.attackCurveNum)
+        if(currentStatus < this.curve.attackCurveNum){
             return currentStatus;
-        else
+        }
+        else{
             return -1;
-    }
-
-    @Override
-    public List<double[]> getSNRAndPI(){
-        List<double[]> result = new ArrayList<>();
-        result.add(snr.getBeforeSNR());
-        result.add(snr.getAfterSNR());
-        result.add(pi.getBeforePI());
-        result.add(pi.getAfterPI());
-        return result;
+        }
     }
 
     private void getParametersFromPanel(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC){
-        this.attackCurveStart = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_start_textfiled.getText());
-        this.attackCurveNum = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_number_textfiled.getText());
-        this.attackSampleStart = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_start_textfiled.getText());
-        this.attackSampleNum = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_number_textfiled.getText());
-        this.baseCurveIndex = Integer.parseInt(alignDTWAndReduceNoicePOC.base_curve_index_textfield.getText());
+        curve.attackCurveStart = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_start_textfiled.getText());
+        curve.attackCurveNum = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_number_textfiled.getText());
+        curve.attackSampleStart = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_start_textfiled.getText());
+        curve.attackSampleNum = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_number_textfiled.getText());
+        curve.baseCurveIndex = Integer.parseInt(alignDTWAndReduceNoicePOC.base_curve_index_textfield.getText());
     }
 
     private double[] excuteDTW(double[] base_trace, double[] trace){
@@ -147,11 +131,13 @@ public class DTW extends AlignToolBox{
                 x_flag = i;
             }
             else{
-                double tempReuslt =  base_trace[F[x_flag+1][1]];
-                if(Double.isNaN(tempReuslt))
+                double tempReuslt = base_trace[F[x_flag+1][1]];
+                if(Double.isNaN(tempReuslt)){
                     pc[i] = pc[i-1];
-                else
+                }
+                else{
                     pc[i] = tempReuslt;
+                }
             }
         }
         for(int i = 0; i < base_trace_length; i++){

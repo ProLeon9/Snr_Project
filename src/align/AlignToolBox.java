@@ -1,15 +1,8 @@
 package align;
 
-import org.jfree.chart.ChartPanel;
-
-import java.util.List;
+import tools.PreProcess;
 
 
-public abstract class AlignToolBox{
+public abstract class AlignToolBox extends PreProcess{
 
-    ChartPanel resultChartPanel;
-
-    public abstract int getProcessStatus();
-
-    public abstract List<double[]> getSNRAndPI();
 }

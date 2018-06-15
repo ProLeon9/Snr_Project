@@ -1,15 +1,8 @@
 package reducenoice;
 
-import org.jfree.chart.ChartPanel;
 
-import java.util.ArrayList;
-import java.util.List;
+import tools.PreProcess;
 
-public abstract class ReduceNoiceToolBox{
+public abstract class ReduceNoiceToolBox extends PreProcess{
 
-    ChartPanel resultChartPanel;
-
-    public abstract int getProcessStatus();
-
-    public abstract List<double[]> getSNRAndPI();
 }

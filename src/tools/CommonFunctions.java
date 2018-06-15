@@ -213,4 +213,8 @@ public class CommonFunctions{
         }
         return min;
     }
+
+    public static void getPanelParameters(){
+
+    }
 }

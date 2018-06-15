@@ -6,32 +6,25 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.AlignDTWAndReduceNoicePOC;
 import tools.CommonFunctions;
+import tools.Curve;
 import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import static tools.CommonFunctions.hexStringTOIntArray;
 
-public class POC extends ReduceNoiceToolBox{
 
+public class POC extends ReduceNoiceToolBox{
     //曲线相关参数
-    private int attackSampleNum;
-    private int attackSampleStart;
-    private int attackCurveStart;
-    private int attackCurveNum;
-    //DTW相关参数
-    private int baseCurveIndex;
+    private Curve curve;
     //显示进度使用
     private int currentStatus;
-    //SNR使用
-    private SNR snr;
-    private double[] snrResult;
-    //PI使用
-    private PI pi;
-    private double[] piResult;
+
+
+    public POC(){
+        this.curve = new Curve();
+    }
 
     public ChartPanel excuteReduceNoice(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC, String resultPath, String lastMethod) throws IOException{
         getParametersFromPanel(alignDTWAndReduceNoicePOC);
@@ -39,27 +32,27 @@ public class POC extends ReduceNoiceToolBox{
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\POC.txt"));
         BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
         //读取baseCurve
-        for(int i = 1; i <= this.baseCurveIndex-1; i++){
+        for(int i = 1; i <= this.curve.baseCurveIndex-1; i++){
             curveReader.readLine();
         }
-        double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
+        double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.curve.attackSampleNum, this.curve.attackSampleStart-1);
         curveReader.close();
         //剔除不用的Curve
         curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
-        for(int i = 1; i <= this.attackCurveStart-1; i++){
+        for(int i = 1; i <= this.curve.attackCurveStart-1; i++){
             curveReader.readLine();
             plainReader.readLine();
         }
         //执行降噪
         double[] curve, result, originalTrace = null, newTrace = null;
         int[] plain;
-        for(int i = 1; i <= this.attackCurveNum; i++){
-            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
+        for(int i = 1; i <= this.curve.attackCurveNum; i++){
+            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.curve.attackSampleNum, this.curve.attackSampleStart-1);
             result = excutePOC(base_trace, curve);
             plain = hexStringTOIntArray(plainReader.readLine());
             if(i == 1){
                 snr = new SNR(curve, result);
-                pi = new PI(curve, result, attackCurveNum);
+                pi = new PI(curve, result, this.curve.attackCurveNum);
             }
             snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
             pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
@@ -77,11 +70,11 @@ public class POC extends ReduceNoiceToolBox{
         this.piResult = pi.returnPI();
 
         //执行作图
-        int[] xris = new int[this.attackSampleNum];
+        int[] xris = new int[this.curve.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
-            xris[i] = i+this.attackSampleStart;
+            xris[i] = i+this.curve.attackSampleStart;
         }
-        double[][] yris = new double[2][this.attackSampleNum];
+        double[][] yris = new double[2][this.curve.attackSampleNum];
 
         assert originalTrace != null;
         assert newTrace != null;
@@ -96,7 +89,7 @@ public class POC extends ReduceNoiceToolBox{
 
     @Override
     public int getProcessStatus(){
-        if(currentStatus < this.attackCurveNum){
+        if(currentStatus < this.curve.attackCurveNum){
             return currentStatus;
         }
         else{
@@ -105,11 +98,11 @@ public class POC extends ReduceNoiceToolBox{
     }
 
     private void getParametersFromPanel(AlignDTWAndReduceNoicePOC alignDTWAndReduceNoicePOC){
-        this.attackCurveStart = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_start_textfiled.getText());
-        this.attackCurveNum = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_number_textfiled.getText());
-        this.attackSampleStart = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_start_textfiled.getText());
-        this.attackSampleNum = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_number_textfiled.getText());
-        this.baseCurveIndex = Integer.parseInt(alignDTWAndReduceNoicePOC.base_curve_index_textfield.getText());
+        this.curve.attackCurveStart = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_start_textfiled.getText());
+        this.curve.attackCurveNum = Integer.parseInt(alignDTWAndReduceNoicePOC.curve_number_textfiled.getText());
+        this.curve.attackSampleStart = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_start_textfiled.getText());
+        this.curve.attackSampleNum = Integer.parseInt(alignDTWAndReduceNoicePOC.sample_number_textfiled.getText());
+        this.curve.baseCurveIndex = Integer.parseInt(alignDTWAndReduceNoicePOC.base_curve_index_textfield.getText());
     }
 
     //将tpl曲线向ref曲线对齐
@@ -154,15 +147,17 @@ public class POC extends ReduceNoiceToolBox{
             Complex x = new Complex(fft_curve2[i].re()*Math.cos(dis[i])-fft_curve2[i].im()*Math.sin(dis[i]), fft_curve2[i].re()*Math.sin(dis[i])+fft_curve2[i].im()*Math.cos(dis[i]));
             tmp[i] = x;
         }
-        Complex[] ifft_tmp = new Complex[fft_size];
+        Complex[] ifft_tmp;
         ifft_tmp = FFTInPOC.ifft(tmp);
         double[] ret = new double[fft_size];
         for(int i = 0; i < fft_size; ++i){
             double tempResult = ifft_tmp[i].re();//fft_size;
-            if(Double.isNaN(tempResult))
+            if(Double.isNaN(tempResult)){
                 ret[i] = ret[i-1];
-            else
+            }
+            else{
                 ret[i] = tempResult;
+            }
         }
         return ret;
     }
@@ -174,16 +169,6 @@ public class POC extends ReduceNoiceToolBox{
     public double[] getPI(){
         return this.piResult;
     }
-
-    public List<double[]> getSNRAndPI(){
-        List<double[]> result = new ArrayList<>();
-        result.add(snr.getBeforeSNR());
-        result.add(snr.getAfterSNR());
-        result.add(pi.getBeforePI());
-        result.add(pi.getAfterPI());
-        return result;
-    }
-
 }
 
 
@@ -216,9 +201,6 @@ class Complex{
         return Math.hypot(re, im);
     }  // Math.sqrt(re*re + im*im)
 
-    private double phase(){
-        return Math.atan2(im, re);
-    }  // between -pi and pi
 
     // return a new Complex object whose value is (this + b)
     Complex plus(Complex b){
@@ -255,12 +237,6 @@ class Complex{
         return new Complex(re, -im);
     }
 
-    // return a new Complex object whose value is the reciprocal of this
-    private Complex reciprocal(){
-        double scale = re*re+im*im;
-        return new Complex(re/scale, -im/scale);
-    }
-
     // return the real or imaginary part
     double re(){
         return re;
@@ -269,62 +245,6 @@ class Complex{
     double im(){
         return im;
     }
-
-    // return a / b
-    private Complex divides(Complex b){
-        Complex a = this;
-        return a.times(b.reciprocal());
-    }
-
-    // return a new Complex object whose value is the complex exponential of this
-    public Complex exp(){
-        return new Complex(Math.exp(re)*Math.cos(im), Math.exp(re)*Math.sin(im));
-    }
-
-    // return a new Complex object whose value is the complex sine of this
-    private Complex sin(){
-        return new Complex(Math.sin(re)*Math.cosh(im), Math.cos(re)*Math.sinh(im));
-    }
-
-    // return a new Complex object whose value is the complex cosine of this
-    private Complex cos(){
-        return new Complex(Math.cos(re)*Math.cosh(im), -Math.sin(re)*Math.sinh(im));
-    }
-
-    // return a new Complex object whose value is the complex tangent of this
-    private Complex tan(){
-        return sin().divides(cos());
-    }
-
-
-    // a static version of plus
-    public static Complex plus(Complex a, Complex b){
-        double real = a.re+b.re;
-        double imag = a.im+b.im;
-        return new Complex(real, imag);
-    }
-
-
-    // sample client for testing
-    public static void main(String[] args){
-        Complex a = new Complex(5.0, 6.0);
-        Complex b = new Complex(-3.0, 4.0);
-
-        System.out.println("a            = "+a);
-        System.out.println("b            = "+b);
-        System.out.println("Re(a)        = "+a.re());
-        System.out.println("Im(a)        = "+a.im());
-        System.out.println("b + a        = "+b.plus(a));
-        System.out.println("a - b        = "+a.minus(b));
-        System.out.println("a * b        = "+a.times(b));
-        System.out.println("b * a        = "+b.times(a));
-        System.out.println("a / b        = "+a.divides(b));
-        System.out.println("(a / b) * b  = "+a.divides(b).times(b));
-        System.out.println("conj(a)      = "+a.conjugate());
-        System.out.println("|a|          = "+a.abs());
-        System.out.println("tan(a)       = "+a.tan());
-    }
-
 }
 
 
@@ -376,11 +296,10 @@ class FFTInPOC{
         Complex[] q = fft(even);
 
         // fft of odd terms
-        Complex[] odd = even;  // reuse the array
         for(int k = 0; k < N/2; k++){
-            odd[k] = x[2*k+1];
+            even[k] = x[2*k+1];
         }
-        Complex[] r = fft(odd);
+        Complex[] r = fft(even);
 
         // combine
         Complex[] y = new Complex[N];
@@ -452,17 +371,13 @@ class FFTInPOC{
         Complex ZERO = new Complex(0, 0);
 
         Complex[] a = new Complex[2*x.length];
-        for(int i = 0; i < x.length; i++){
-            a[i] = x[i];
-        }
+        System.arraycopy(x, 0, a, 0, x.length);
         for(int i = x.length; i < 2*x.length; i++){
             a[i] = ZERO;
         }
 
         Complex[] b = new Complex[2*y.length];
-        for(int i = 0; i < y.length; i++){
-            b[i] = y[i];
-        }
+        System.arraycopy(y, 0, b, 0, y.length);
         for(int i = y.length; i < 2*y.length; i++){
             b[i] = ZERO;
         }
@@ -474,8 +389,8 @@ class FFTInPOC{
     private static void show(Complex[] x, String title){
         System.out.println(title);
         System.out.println("-------------------");
-        for(int i = 0; i < x.length; i++){
-            System.out.println(x[i]);
+        for(Complex aX : x){
+            System.out.println(aX);
         }
         System.out.println();
     }

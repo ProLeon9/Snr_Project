@@ -6,32 +6,25 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.ReduceNoiceFFTAndNormalizationZScore;
 import tools.CommonFunctions;
+import tools.Curve;
 import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
-import static tools.CommonFunctions.getAverage;
-import static tools.CommonFunctions.getStandardDiviation;
-import static tools.CommonFunctions.hexStringTOIntArray;
+import static tools.CommonFunctions.*;
+
 
 public class ZScore extends NormalizationToolBox{
     //曲线相关参数
-    private int attackSampleNum;
-    private int attackSampleStart;
-    private int attackCurveStart;
-    private int attackCurveNum;
+    private Curve curve;
     //显示进度使用
     private int currentStatus;
-    //SNR使用
-    private SNR snr;
-    private double[] snrResult;
-    //PI使用
-    private PI pi;
-    private double[] piResult;
 
+
+    ZScore(){
+        this.curve = new Curve();
+    }
 
     public ChartPanel excuteNormalization(ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore, String resultPath, String lastMethod) throws IOException{
         getParametersFromPanel(reduceNoiceFFTAndNormalizationZScore);
@@ -39,20 +32,20 @@ public class ZScore extends NormalizationToolBox{
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\Z-Score.txt"));
         BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
         //剔除不用的Curve
-        for(int i = 1; i <= this.attackCurveStart-1; i++){
+        for(int i = 1; i <= this.curve.attackCurveStart-1; i++){
             curveReader.readLine();
             plainReader.readLine();
         }
         //执行降噪
-        double[] curve, result, originalTrace=null, newTrace=null;
+        double[] curve, result, originalTrace = null, newTrace = null;
         int[] plain;
-        for(int i = 1; i <= this.attackCurveNum; i++){
-            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
+        for(int i = 1; i <= this.curve.attackCurveNum; i++){
+            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.curve.attackSampleNum, this.curve.attackSampleStart-1);
             result = excuteZScore(curve);
             plain = hexStringTOIntArray(plainReader.readLine());
             if(i == 1){
                 snr = new SNR(curve, result);
-                pi = new PI(curve, result, attackCurveNum);
+                pi = new PI(curve, result, this.curve.attackCurveNum);
             }
             snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
             pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
@@ -70,11 +63,11 @@ public class ZScore extends NormalizationToolBox{
         this.piResult = pi.returnPI();
 
         //执行作图
-        int[] xris = new int[this.attackSampleNum];
+        int[] xris = new int[this.curve.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
-            xris[i] = i+this.attackSampleStart;
+            xris[i] = i+this.curve.attackSampleStart;
         }
-        double[][] yris = new double[2][this.attackSampleNum];
+        double[][] yris = new double[2][this.curve.attackSampleNum];
 
         assert originalTrace != null;
         assert newTrace != null;
@@ -86,27 +79,30 @@ public class ZScore extends NormalizationToolBox{
         currentStatus += 1; //为了保证执行线程和更新线程在同一个处理方式时保持同步！！！
         return super.resultChartPanel;
     }
+
     @Override
     public int getProcessStatus(){
-        if(currentStatus < this.attackCurveNum)
+        if(currentStatus < this.curve.attackCurveNum){
             return currentStatus;
-        else
+        }
+        else{
             return -1;
+        }
     }
 
     private void getParametersFromPanel(ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore){
-        this.attackCurveStart = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.curve_start_textfiled.getText());
-        this.attackCurveNum = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.curve_number_textfiled.getText());
-        this.attackSampleStart = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.sample_start_textfiled.getText());
-        this.attackSampleNum = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.sample_number_textfiled.getText());
+        this.curve.attackCurveStart = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.curve_start_textfiled.getText());
+        this.curve.attackCurveNum = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.curve_number_textfiled.getText());
+        this.curve.attackSampleStart = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.sample_start_textfiled.getText());
+        this.curve.attackSampleNum = Integer.parseInt(reduceNoiceFFTAndNormalizationZScore.sample_number_textfiled.getText());
     }
 
     private double[] excuteZScore(double[] trace){
         double standard_diviation = getStandardDiviation(trace);
         double average = getAverage(trace);
         double[] result = new double[trace.length];
-        for(int i=0;i<=trace.length-1;i++){
-            result[i] = (trace[i] - average) / standard_diviation*standard_diviation;
+        for(int i = 0; i <= trace.length-1; i++){
+            result[i] = (trace[i]-average)/standard_diviation*standard_diviation;
         }
         return result;
     }
@@ -118,14 +114,4 @@ public class ZScore extends NormalizationToolBox{
     public double[] getPI(){
         return this.piResult;
     }
-
-    public List<double[]> getSNRAndPI(){
-        List<double[]> result = new ArrayList<>();
-        result.add(snr.getBeforeSNR());
-        result.add(snr.getAfterSNR());
-        result.add(pi.getBeforePI());
-        result.add(pi.getAfterPI());
-        return result;
-    }
-
 }

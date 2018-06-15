@@ -6,62 +6,53 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.data.xy.XYDataset;
 import panel.AlignStaticAlign;
 import tools.CommonFunctions;
+import tools.Curve;
 import tools.graph.chart.XYLineChart;
 import tools.graph.util.ChartUtils;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 import static tools.CommonFunctions.hexStringTOIntArray;
 
-public class StaticAlign extends AlignToolBox{
 
+public class StaticAlign extends AlignToolBox{
     //曲线相关参数
-    private int attackSampleNum;
-    private int attackSampleStart;
-    private int attackCurveStart;
-    private int attackCurveNum;
-    //StaticAlign相关参数
-    private int maxWindow;
-    private int baseCurveIndex;
+    private Curve curve;
     //显示进度使用
     private int currentStatus;
-    //SNR使用
-    private SNR snr;
-    private double[] snrResult;
-    //PI使用
-    private PI pi;
-    private double[] piResult;
 
 
-    public ChartPanel excuteAlign(AlignStaticAlign alignStaticAlign, String resultPath, String lastMethod) throws IOException{
+    StaticAlign(){
+        this.curve = new Curve();
+    }
+
+    public ChartPanel executeAlign(AlignStaticAlign alignStaticAlign, String resultPath, String lastMethod) throws IOException{
         getParametersFromPanel(alignStaticAlign);
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\StaticAlign.txt"));
         BufferedReader plainReader = new BufferedReader(new FileReader(resultPath+"\\"+"text_in.txt"));
         //读取baseCurve
-        for(int i = 1; i <=this.baseCurveIndex-1; i++){
+        for(int i = 1; i <= this.curve.baseCurveIndex-1; i++){
             curveReader.readLine();
         }
-        double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
+        double[] base_trace = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.curve.attackSampleNum, this.curve.attackSampleStart-1);
         curveReader.close();
         //剔除不用的Curve
         curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
-        for(int i = 1; i <= this.attackCurveStart-1; i++){
+        for(int i = 1; i <= this.curve.attackCurveStart-1; i++){
             curveReader.readLine();
             plainReader.readLine();
         }
         //执行对齐
-        double[] curve, result, originalTrace=null, newTrace=null;
+        double[] curve, result, originalTrace = null, newTrace = null;
         int[] plain;
-        for(int i = 1; i <= this.attackCurveNum; i++){
-            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.attackSampleNum, this.attackSampleStart-1);
-            result = excuteStaticAlign(base_trace, curve, maxWindow);
+        for(int i = 1; i <= this.curve.attackCurveNum; i++){
+            curve = CommonFunctions.powerCut(CommonFunctions.doubleStringToDoubleArray(curveReader.readLine()), this.curve.attackSampleNum, this.curve.attackSampleStart-1);
+            result = excuteStaticAlign(base_trace, curve, this.curve.maxWindow);
             plain = hexStringTOIntArray(plainReader.readLine());
             if(i == 1){
                 snr = new SNR(curve, result);
-                pi = new PI(curve, result, attackCurveNum);
+                pi = new PI(curve, result, this.curve.attackCurveNum);
             }
             snr.excuteSNR(curve, result, plain, 0);  //TODO:index可以指定为参数
             pi.excutePI(curve, result, plain, 0); //TODO:index可以指定为参数
@@ -79,11 +70,11 @@ public class StaticAlign extends AlignToolBox{
         this.piResult = pi.returnPI();
 
         //执行作图
-        int[] xris = new int[this.attackSampleNum];
+        int[] xris = new int[this.curve.attackSampleNum];
         for(int i = 0; i <= xris.length-1; i++){
-            xris[i] = i+this.attackSampleStart;
+            xris[i] = i+this.curve.attackSampleStart;
         }
-        double[][] yris = new double[2][this.attackSampleNum];
+        double[][] yris = new double[2][this.curve.attackSampleNum];
 
         assert originalTrace != null;
         assert newTrace != null;
@@ -98,20 +89,21 @@ public class StaticAlign extends AlignToolBox{
 
     @Override
     public int getProcessStatus(){
-        if(currentStatus < this.attackCurveNum)
+        if(currentStatus < this.curve.attackCurveNum){
             return currentStatus;
-        else
+        }
+        else{
             return -1;
+        }
     }
 
     private void getParametersFromPanel(AlignStaticAlign alignStaticAlign){
-        this.attackCurveStart = Integer.parseInt(alignStaticAlign.curve_start_textfiled.getText());
-        this.attackCurveNum = Integer.parseInt(alignStaticAlign.curve_number_textfiled.getText());
-        this.attackSampleStart = Integer.parseInt(alignStaticAlign.sample_start_textfiled.getText());
-        this.attackSampleNum = Integer.parseInt(alignStaticAlign.sample_number_textfiled.getText());
-        this.maxWindow = Integer.parseInt(alignStaticAlign.max_deviation_textfield.getText());
-        this.baseCurveIndex = Integer.parseInt(alignStaticAlign.base_curve_index_textfield.getText());
-        this.snrResult = new double[2];
+        this.curve.attackCurveStart = Integer.parseInt(alignStaticAlign.curve_start_textfiled.getText());
+        this.curve.attackCurveNum = Integer.parseInt(alignStaticAlign.curve_number_textfiled.getText());
+        this.curve.attackSampleStart = Integer.parseInt(alignStaticAlign.sample_start_textfiled.getText());
+        this.curve.attackSampleNum = Integer.parseInt(alignStaticAlign.sample_number_textfiled.getText());
+        this.curve.maxWindow = Integer.parseInt(alignStaticAlign.max_deviation_textfield.getText());
+        this.curve.baseCurveIndex = Integer.parseInt(alignStaticAlign.base_curve_index_textfield.getText());
     }
 
     private double[] excuteStaticAlign(double[] base_trace, double[] trace, int max_deviation){
@@ -167,14 +159,4 @@ public class StaticAlign extends AlignToolBox{
     public double[] getPI(){
         return this.piResult;
     }
-
-    public List<double[]> getSNRAndPI(){
-        List<double[]> result = new ArrayList<>();
-        result.add(snr.getBeforeSNR());
-        result.add(snr.getAfterSNR());
-        result.add(pi.getBeforePI());
-        result.add(pi.getAfterPI());
-        return result;
-    }
-
 }

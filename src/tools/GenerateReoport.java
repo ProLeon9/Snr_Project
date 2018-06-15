@@ -36,7 +36,7 @@ public class GenerateReoport{
 
             //Step 4—Add content.
             //写内容
-            Font font = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLDITALIC, BaseColor.RED);
+            Font font = new Font(Font.FontFamily.HELVETICA, 23, Font.BOLDITALIC, BaseColor.RED);
             //Chunk id = new Chunk("chinese", font);
             Paragraph title = new Paragraph("Preprocess Evaluation Report", font);
             title.setAlignment(Rectangle.ALIGN_CENTER); //标题剧中
@@ -45,15 +45,18 @@ public class GenerateReoport{
 
             Paragraph Blank_line = new Paragraph(" "); //空行
             chapter.add(Blank_line);
+            chapter.add(Blank_line);
+            chapter.add(Blank_line);
 
-            Font font1 = new Font(Font.FontFamily.HELVETICA, 13, Font.BOLDITALIC, BaseColor.BLACK);
+            Font font1 = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLDITALIC, BaseColor.BLACK);
             Paragraph sub_title1 = new Paragraph("PreProcess Method:", font1);
             chapter.add(sub_title1);
             chapter.add(Blank_line);
 
+            Font font2 = new Font(Font.FontFamily.HELVETICA, 15, Font.BOLDITALIC, BaseColor.BLACK);
             ZapfDingbatsList zapfDingbatsList = new ZapfDingbatsList(43, 30);
             for(int i=0; i<=methodList.size()-1; i++){
-                zapfDingbatsList.add(new ListItem(changeToEnglish(methodList.get(i))));
+                zapfDingbatsList.add(new ListItem(changeToEnglish(methodList.get(i)), font2));
             }
             chapter.add(zapfDingbatsList);
             document.add(chapter);

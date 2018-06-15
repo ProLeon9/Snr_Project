@@ -934,7 +934,7 @@ public class MainWindow{
             Thread alignProcessThread = new Thread(()->{
                 Thread.currentThread().setName("alignProcessThread");
                 try{
-                    resultChartPanel = staticAlign.excuteAlign(temp, resultPath, lastMethod);
+                    resultChartPanel = staticAlign.executeAlign(temp, resultPath, lastMethod);
                     lastMethod = "StaticAlign";
                     double[] SNRReulst = staticAlign.getSNR();
                     mainWindow.ResultOriginalSNRLabel.setText("‘§¥¶¿Ì«∞SNR£∫ " + String.format("%.4f", SNRReulst[0]));
