@@ -147,12 +147,4 @@ public class SSA extends ReduceNoiceToolBox{
         String comstr = matlabPath+" -nosplash -nodesktop -nodisplay -r \""+"wavePath=\'"+resultPath+"\\"+"\',N="+this.slideWindowNum+";"+"runSSA\"";
         Runtime.getRuntime().exec(comstr);
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }

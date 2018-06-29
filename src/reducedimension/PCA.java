@@ -147,12 +147,4 @@ public class PCA extends ReduceDimensionToolBox{
         String comstr = matlabPath+" -nosplash -nodesktop -nodisplay -r \""+"wavePath=\'"+resultPath+"\\"+"\',N="+this.curve.reduceDimension+";"+"runPCA\"";
         Runtime.getRuntime().exec(comstr);
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }

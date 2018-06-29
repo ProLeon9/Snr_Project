@@ -130,13 +130,4 @@ public class KalmanFilter extends ReduceNoiceToolBox{
         this.P = (1-KG*H)*predictP;
         return KalmenValue;
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
-
 }

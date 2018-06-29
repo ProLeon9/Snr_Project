@@ -70,7 +70,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="1000"/>
+              <text value="5000"/>
             </properties>
           </component>
           <component id="47b29" class="javax.swing.JLabel">
@@ -118,7 +118,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="5"/>
+              <text value="50"/>
             </properties>
           </component>
           <hspacer id="53952">

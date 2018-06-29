@@ -228,12 +228,4 @@ public class FFT extends ReduceNoiceToolBox{
             }
         }
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }

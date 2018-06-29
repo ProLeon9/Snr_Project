@@ -151,12 +151,4 @@ public class StaticAlign extends AlignToolBox{
         }
         return Math.abs(fenzi/Math.pow(fenmu1*fenmu2, 0.5));
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }

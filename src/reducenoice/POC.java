@@ -161,14 +161,6 @@ public class POC extends ReduceNoiceToolBox{
         }
         return ret;
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }
 
 

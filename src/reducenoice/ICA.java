@@ -153,12 +153,4 @@ public class ICA extends ReduceNoiceToolBox{
         String comstr = matlabPath+" -nosplash -nodesktop -nodisplay -r \""+"wavePath=\'"+resultPath+"\\"+"\'"+";"+"runICA\"";
         Runtime.getRuntime().exec(comstr);
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }

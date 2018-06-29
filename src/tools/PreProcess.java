@@ -28,4 +28,12 @@ public abstract class PreProcess{
         result.add(pi.getAfterPI());
         return result;
     }
+
+    public double[] getSNR(){
+        return this.snrResult;
+    }
+
+    public double[] getPI(){
+        return this.piResult;
+    }
 }

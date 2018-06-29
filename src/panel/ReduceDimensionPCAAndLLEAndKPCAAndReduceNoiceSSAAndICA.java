@@ -1,6 +1,7 @@
 package panel;
 
 import javax.swing.*;
+import java.util.Objects;
 
 public class ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA{
     public JTextField curve_start_textfiled;
@@ -24,9 +25,11 @@ public class ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA{
     }
 
     void rename(String method){
-        if(method == "SSA")
+        if(Objects.equals(method, "SSA")){
             this.SSAAndICAUseLable.setText("»¬¶¯´°¿ÚÖµ£º ");
-        else if(method == "ICA"){
+            this.character_number_textfield.setText("500");
+        }
+        else if(Objects.equals(method, "ICA")){
             this.SSAAndICAUseLable.setVisible(false);
             this.character_number_textfield.setVisible(false);
         }

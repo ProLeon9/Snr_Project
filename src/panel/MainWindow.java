@@ -11,24 +11,18 @@ import normalization.NormalizationFactory;
 import normalization.NormalizationToolBox;
 import normalization.ZScore;
 import org.jfree.chart.ChartPanel;
-import org.jfree.chart.ChartUtilities;
-import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYDataset;
 import reducedimension.ReduceDimensionFactory;
 import reducedimension.ReduceDimensionToolBox;
 import reducenoice.*;
 import tools.DrawCurve;
 import tools.GenerateReoport;
-import tools.graph.chart.XYLineChart;
-import tools.graph.util.ChartUtils;
+import tools.PreProcess;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.awt.Font;
 
-
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -97,13 +91,9 @@ public class MainWindow{
     private JPanel NormalizationComboBoxPanel;
     private JLabel ResultProcessStatusLabel;
 
-    private static JFrame frame;
     private static MainWindow mainWindow;
-    private static String curvePath;
     private static String matlabPath;
     private static String resultPath;
-    private static String keyPath;
-    private static String plainPath;
     private static ChartPanel resultChartPanel;
     private static Set<String> methodSet;   //存放用户选择的预处理方法
     private static List<String> methodList;   //存放将要使用的预处理方法
@@ -121,335 +111,265 @@ public class MainWindow{
     private static List<double[]> SNRAfterResult;  //存放处理后snr值
     private static List<double[]> PIBeforeResult;  //存放处理前pi值
     private static List<double[]> PIAfterResult;  //存放处理后pi值
-    private static List<double[]> SnrANdPiTemp; //暂时存放当前结果
 
 
     private MainWindow(){
-        NICVCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(NICVCheckBox.isSelected()){
-                    setLocationContainerPanel(NICVCheckBox, "NICV");
-                }
-                else{
-                    NICVCheckBox.setForeground(new Color(187, 187, 187));
-                }
+        NICVCheckBox.addItemListener(e->{
+            if(NICVCheckBox.isSelected()){
+                setLocationContainerPanel(NICVCheckBox, "NICV");
+            }
+            else{
+                NICVCheckBox.setForeground(new Color(187, 187, 187));
             }
         });
-        SOSDCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(SOSDCheckBox.isSelected()){
-                    setLocationContainerPanel(SOSDCheckBox, "SOSD");
-                }
-                else{
-                    SOSDCheckBox.setForeground(new Color(187, 187, 187));
-                }
+        SOSDCheckBox.addItemListener(e->{
+            if(SOSDCheckBox.isSelected()){
+                setLocationContainerPanel(SOSDCheckBox, "SOSD");
+            }
+            else{
+                SOSDCheckBox.setForeground(new Color(187, 187, 187));
             }
         });
-        SOSTCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(SOSTCheckBox.isSelected()){
-                    setLocationContainerPanel(SOSTCheckBox, "SOST");
-                }
-                else{
-                    SOSTCheckBox.setForeground(new Color(187, 187, 187));
-                }
+        SOSTCheckBox.addItemListener(e->{
+            if(SOSTCheckBox.isSelected()){
+                setLocationContainerPanel(SOSTCheckBox, "SOST");
+            }
+            else{
+                SOSTCheckBox.setForeground(new Color(187, 187, 187));
             }
         });
-        LocationRecommendCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(LocationRecommendCheckBox.isSelected()){
-                    setLocationContainerPanel(LocationRecommendCheckBox, "通用");
-                    systemRecommendOption[0] = true;
-                }
-                else{
-                    LocationRecommendCheckBox.setForeground(new Color(187, 187, 187));
-                    systemRecommendOption[0] = false;
-                }
+        LocationRecommendCheckBox.addItemListener(e->{
+            if(LocationRecommendCheckBox.isSelected()){
+                setLocationContainerPanel(LocationRecommendCheckBox, "通用");
+                systemRecommendOption[0] = true;
+            }
+            else{
+                LocationRecommendCheckBox.setForeground(new Color(187, 187, 187));
+                systemRecommendOption[0] = false;
             }
         });
-        StaticAlignCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(StaticAlignCheckBox.isSelected()){
-                    setAlignContainerPanel(StaticAlignCheckBox, "静态对齐");
-                }
-                else{
-                    StaticAlignCheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=alignStaticAlign.size()-1; i++){
-                        if(Objects.equals(alignStaticAlign.get(i).getName(), "静态对齐参数配置：")){
-                            alignStaticAlign.remove(i);
-                            i=0;
-                        }
+        StaticAlignCheckBox.addItemListener(e->{
+            if(StaticAlignCheckBox.isSelected()){
+                setAlignContainerPanel(StaticAlignCheckBox, "静态对齐");
+            }
+            else{
+                StaticAlignCheckBox.setForeground(new Color(187, 187, 187));
+                for(int i=0; i<=alignStaticAlign.size()-1; i++){
+                    if(Objects.equals(alignStaticAlign.get(i).getName(), "静态对齐参数配置：")){
+                        alignStaticAlign.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        DTWCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(DTWCheckBox.isSelected()){
-                    setAlignContainerPanel(DTWCheckBox, "动态对齐");
-                }
-                else{
-                    DTWCheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
-                        if(Objects.equals(alignDTWAndReduceNoicePOC.get(i).getName(), "动态对齐参数配置：")){
-                            alignDTWAndReduceNoicePOC.remove(i);
-                            i=0;
-                        }
+        DTWCheckBox.addItemListener(e->{
+            if(DTWCheckBox.isSelected()){
+                setAlignContainerPanel(DTWCheckBox, "动态对齐");
+            }
+            else{
+                DTWCheckBox.setForeground(new Color(187, 187, 187));
+                for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
+                    if(Objects.equals(alignDTWAndReduceNoicePOC.get(i).getName(), "动态对齐参数配置：")){
+                        alignDTWAndReduceNoicePOC.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        AlignNoCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(AlignNoCheckBox.isSelected()){
-                    setAlignContainerPanel(AlignNoCheckBox, "不使用");
-                }
-                else{
-                    AlignNoCheckBox.setForeground(new Color(187, 187, 187));
-                }
+        AlignNoCheckBox.addItemListener(e->{
+            if(AlignNoCheckBox.isSelected()){
+                setAlignContainerPanel(AlignNoCheckBox, "不使用");
+            }
+            else{
+                AlignNoCheckBox.setForeground(new Color(187, 187, 187));
             }
         });
-        AlignRecommendCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(AlignRecommendCheckBox.isSelected()){
-                    setAlignContainerPanel(AlignRecommendCheckBox, "系统推荐");
-                    systemRecommendOption[1] = true;
-                }
-                else{
-                    AlignRecommendCheckBox.setForeground(new Color(187, 187, 187));
-                    systemRecommendOption[1] = false;
-                }
+        AlignRecommendCheckBox.addItemListener(e->{
+            if(AlignRecommendCheckBox.isSelected()){
+                setAlignContainerPanel(AlignRecommendCheckBox, "系统推荐");
+                systemRecommendOption[1] = true;
+            }
+            else{
+                AlignRecommendCheckBox.setForeground(new Color(187, 187, 187));
+                systemRecommendOption[1] = false;
             }
         });
-        FFTCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(FFTCheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(FFTCheckBox, "FFT");
-                }
-                else{
-                    FFTCheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
-                        if(Objects.equals(reduceNoiceFFTAndNormalizationZScores.get(i).getName(), "FFT参数配置：")){
-                            reduceNoiceFFTAndNormalizationZScores.remove(i);
-                            i=0;
-                        }
+        FFTCheckBox.addItemListener(e->{
+            if(FFTCheckBox.isSelected()){
+                setReduceNoiceContainerPanel(FFTCheckBox, "FFT");
+            }
+            else{
+                FFTCheckBox.setForeground(new Color(187, 187, 187));
+                for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
+                    if(Objects.equals(reduceNoiceFFTAndNormalizationZScores.get(i).getName(), "FFT参数配置：")){
+                        reduceNoiceFFTAndNormalizationZScores.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        POCCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(POCCheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(POCCheckBox, "POC");
-                }
-                else{
-                    POCCheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
-                        if(Objects.equals(alignDTWAndReduceNoicePOC.get(i).getName(), "POC参数配置：")){
-                            alignDTWAndReduceNoicePOC.remove(i);
-                            i=0;
-                        }
+        POCCheckBox.addItemListener(e->{
+            if(POCCheckBox.isSelected()){
+                setReduceNoiceContainerPanel(POCCheckBox, "POC");
+            }
+            else{
+                POCCheckBox.setForeground(new Color(187, 187, 187));
+                for(int i=0; i<=alignDTWAndReduceNoicePOC.size()-1; i++){
+                    if(Objects.equals(alignDTWAndReduceNoicePOC.get(i).getName(), "POC参数配置：")){
+                        alignDTWAndReduceNoicePOC.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        KalmanFilterCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(KalmanFilterCheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(KalmanFilterCheckBox, "卡尔曼滤波");
-                }
-                else{
-                    KalmanFilterCheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceNoiceKalmanFilter.size()-1; i++){
-                        if(Objects.equals(reduceNoiceKalmanFilter.get(i).getName(), "卡尔曼滤波参数配置：")){
-                            reduceNoiceKalmanFilter.remove(i);
-                            i=0;
-                        }
+        KalmanFilterCheckBox.addItemListener(e->{
+            if(KalmanFilterCheckBox.isSelected()){
+                setReduceNoiceContainerPanel(KalmanFilterCheckBox, "卡尔曼滤波");
+            }
+            else{
+                KalmanFilterCheckBox.setForeground(new Color(187, 187, 187));
+                for(int i=0; i<=reduceNoiceKalmanFilter.size()-1; i++){
+                    if(Objects.equals(reduceNoiceKalmanFilter.get(i).getName(), "卡尔曼滤波参数配置：")){
+                        reduceNoiceKalmanFilter.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        SSACheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(SSACheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(SSACheckBox, "SSA");
-                }
-                else{
-                    SSACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "SSA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
-                            i=0;
-                        }
+        SSACheckBox.addItemListener(e->{
+            if(SSACheckBox.isSelected()){
+                setReduceNoiceContainerPanel(SSACheckBox, "SSA");
+            }
+            else{
+                SSACheckBox.setForeground(new Color(187, 187, 187));
+                for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                    if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "SSA参数配置：")){
+                        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        ICACheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(ICACheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(ICACheckBox, "ICA");
-                }
-                else{
-                    ICACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "ICA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
-                            i=0;
-                        }
+        ICACheckBox.addItemListener(e->{
+            if(ICACheckBox.isSelected()){
+                setReduceNoiceContainerPanel(ICACheckBox, "ICA");
+            }
+            else{
+                ICACheckBox.setForeground(new Color(187, 187, 187));
+                for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                    if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "ICA参数配置：")){
+                        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        ReduceNoiceNoCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(ReduceNoiceNoCheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(ReduceNoiceNoCheckBox, "不使用");
-                }
-                ReduceNoiceNoCheckBox.setForeground(new Color(187, 187, 187));
+        ReduceNoiceNoCheckBox.addItemListener(e->{
+            if(ReduceNoiceNoCheckBox.isSelected()){
+                setReduceNoiceContainerPanel(ReduceNoiceNoCheckBox, "不使用");
+            }
+            ReduceNoiceNoCheckBox.setForeground(new Color(187, 187, 187));
+        });
+        ReduceNoiceRecommendCheckBox.addItemListener(e->{
+            if(ReduceNoiceRecommendCheckBox.isSelected()){
+                setReduceNoiceContainerPanel(ReduceNoiceRecommendCheckBox, "系统推荐");
+                systemRecommendOption[2] = true;
+            }
+            else{
+                ReduceNoiceRecommendCheckBox.setForeground(new Color(187, 187, 187));
+                systemRecommendOption[2] = false;
             }
         });
-        ReduceNoiceRecommendCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(ReduceNoiceRecommendCheckBox.isSelected()){
-                    setReduceNoiceContainerPanel(ReduceNoiceRecommendCheckBox, "系统推荐");
-                    systemRecommendOption[2] = true;
-                }
-                else{
-                    ReduceNoiceRecommendCheckBox.setForeground(new Color(187, 187, 187));
-                    systemRecommendOption[2] = false;
-                }
+        PCACheckBox.addItemListener(e->{
+            if(PCACheckBox.isSelected()){
+                setReduceDimensionContainerPanel(PCACheckBox, "PCA");
             }
-        });
-        PCACheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(PCACheckBox.isSelected()){
-                    setReduceDimensionContainerPanel(PCACheckBox, "PCA");
-                }
-                else{
-                    PCACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "PCA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
-                            i=0;
-                        }
+            else{
+                PCACheckBox.setForeground(new Color(187, 187, 187));
+                for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                    if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "PCA参数配置：")){
+                        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        LLECheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(LLECheckBox.isSelected()){
-                    setReduceDimensionContainerPanel(LLECheckBox, "LLE");
-                }
-                else{
-                    LLECheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "LLE参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
-                            i=0;
-                        }
+        LLECheckBox.addItemListener(e->{
+            if(LLECheckBox.isSelected()){
+                setReduceDimensionContainerPanel(LLECheckBox, "LLE");
+            }
+            else{
+                LLECheckBox.setForeground(new Color(187, 187, 187));
+                for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                    if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "LLE参数配置：")){
+                        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        KPCACheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(KPCACheckBox.isSelected()){
-                    setReduceDimensionContainerPanel(KPCACheckBox, "KPCA");
-                }
-                else{
-                    KPCACheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
-                        if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "KPCA参数配置：")){
-                            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
-                            i=0;
-                        }
+        KPCACheckBox.addItemListener(e->{
+            if(KPCACheckBox.isSelected()){
+                setReduceDimensionContainerPanel(KPCACheckBox, "KPCA");
+            }
+            else{
+                KPCACheckBox.setForeground(new Color(187, 187, 187));
+                for(int i = 0; i<= reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.size()-1; i++){
+                    if(Objects.equals(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.get(i).getName(), "KPCA参数配置：")){
+                        reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        ReduceDimensionNoCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(ReduceDimensionNoCheckBox.isSelected()){
-                    setReduceDimensionContainerPanel(ReduceDimensionNoCheckBox, "不使用");
-                }
-                else{
-                    ReduceDimensionNoCheckBox.setForeground(new Color(187, 187, 187));
-                }
+        ReduceDimensionNoCheckBox.addItemListener(e->{
+            if(ReduceDimensionNoCheckBox.isSelected()){
+                setReduceDimensionContainerPanel(ReduceDimensionNoCheckBox, "不使用");
+            }
+            else{
+                ReduceDimensionNoCheckBox.setForeground(new Color(187, 187, 187));
             }
         });
-        ReduceDimensionRecommendCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(ReduceDimensionRecommendCheckBox.isSelected()){
-                    setReduceDimensionContainerPanel(ReduceDimensionRecommendCheckBox, "系统推荐");
-                    systemRecommendOption[3] = true;
-                }
-                else{
-                    ReduceDimensionRecommendCheckBox.setForeground(new Color(187, 187, 187));
-                    systemRecommendOption[3] = false;
-                }
+        ReduceDimensionRecommendCheckBox.addItemListener(e->{
+            if(ReduceDimensionRecommendCheckBox.isSelected()){
+                setReduceDimensionContainerPanel(ReduceDimensionRecommendCheckBox, "系统推荐");
+                systemRecommendOption[3] = true;
+            }
+            else{
+                ReduceDimensionRecommendCheckBox.setForeground(new Color(187, 187, 187));
+                systemRecommendOption[3] = false;
             }
         });
-        zScoreCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(zScoreCheckBox.isSelected()){
-                    setNormalizationContainerPanel(zScoreCheckBox, "Z-Score");
-                }
-                else{
-                    zScoreCheckBox.setForeground(new Color(187, 187, 187));
-                    for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
-                        if(Objects.equals(reduceNoiceFFTAndNormalizationZScores.get(i).getName(), "Z-Score参数配置：")){
-                            reduceNoiceFFTAndNormalizationZScores.remove(i);
-                            i=0;
-                        }
+        zScoreCheckBox.addItemListener(e->{
+            if(zScoreCheckBox.isSelected()){
+                setNormalizationContainerPanel(zScoreCheckBox, "Z-Score");
+            }
+            else{
+                zScoreCheckBox.setForeground(new Color(187, 187, 187));
+                for(int i=0; i<=reduceNoiceFFTAndNormalizationZScores.size()-1; i++){
+                    if(Objects.equals(reduceNoiceFFTAndNormalizationZScores.get(i).getName(), "Z-Score参数配置：")){
+                        reduceNoiceFFTAndNormalizationZScores.remove(i);
+                        i=0;
                     }
                 }
             }
         });
-        NormalizationNoCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(NormalizationNoCheckBox.isSelected()){
-                    setNormalizationContainerPanel(NormalizationNoCheckBox, "不使用");
-                }
-                else{
-                    NormalizationNoCheckBox.setForeground(new Color(187, 187, 187));
-                }
+        NormalizationNoCheckBox.addItemListener(e->{
+            if(NormalizationNoCheckBox.isSelected()){
+                setNormalizationContainerPanel(NormalizationNoCheckBox, "不使用");
+            }
+            else{
+                NormalizationNoCheckBox.setForeground(new Color(187, 187, 187));
             }
         });
-        NormalizationRecommendCheckBox.addItemListener(new ItemListener(){
-            @Override
-            public void itemStateChanged(ItemEvent e){
-                if(NormalizationRecommendCheckBox.isSelected()){
-                    setNormalizationContainerPanel(NormalizationRecommendCheckBox, "系统推荐");
-                    systemRecommendOption[4] = true;
-                }
-                else{
-                    NormalizationRecommendCheckBox.setForeground(new Color(187, 187, 187));
-                    systemRecommendOption[4] = false;
-                }
+        NormalizationRecommendCheckBox.addItemListener(e->{
+            if(NormalizationRecommendCheckBox.isSelected()){
+                setNormalizationContainerPanel(NormalizationRecommendCheckBox, "系统推荐");
+                systemRecommendOption[4] = true;
+            }
+            else{
+                NormalizationRecommendCheckBox.setForeground(new Color(187, 187, 187));
+                systemRecommendOption[4] = false;
             }
         });
 
@@ -555,15 +475,61 @@ public class MainWindow{
                 Thread getReportThread = new Thread(()->{
                     Thread.currentThread().setName("getResultReportThread");
                     try{
+                        Thread.sleep(500);
                         createReport();
-                        Thread.sleep(300);
-                        test();
                     }
                     catch(InterruptedException | IOException | DocumentException e1){
                         e1.printStackTrace();
                     }
                 });
                 preprocessExecutor.submit(getReportThread);
+            }
+        });
+        LocationHelpButton.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "定位操作模块：选择定位方法，并输入相应参数后，点击运行即可\n" +
+                        "     注意：需要自行输入的数字全部要求是非负整数");
+            }
+        });
+        AlignHelpButton.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "对齐操作模块：选择对齐方法，并输入相应参数后，点击下一步进行后续选择\n" +
+                        "  注意：需要自行输入的数字全部要求是非负整数（也可以不选择对齐方法）");
+            }
+        });
+        ReduceNoiceHelpButton.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "降噪操作模块：选择降噪方法，并输入相应参数后，点击下一步进行后续选择\n" +
+                        "  注意：需要自行输入的数字全部要求是非负整数（也可以不选择降噪" +
+                        "方法）");
+            }
+        });
+        ReduceDimensionHelpButton.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "降维操作模块：选择降维方法，并输入相应参数后，点击下一步进行后续选择\n" +
+                        "  注意：需要自行输入的数字全部要求是非负整数（也可以不选择降维" +
+                        "方法）");
+            }
+        });
+        NormalizationHelpButton.addMouseListener(new MouseAdapter(){
+            @Override
+            public void mouseClicked(MouseEvent e){
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "标准化操作模块：选择标准化方法，并输入相应参数后，点击运行进行顺序选择\n" +
+                        "  注意：需要自行输入的数字全部要求是非负整数（也可以不选择标准化方法）");
             }
         });
     }
@@ -678,17 +644,7 @@ public class MainWindow{
             mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
             mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
         }
-        else if(Objects.equals(method, "SSA")){
-
-            ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA();
-            temp.setLable(method);
-            temp.rename(method);
-            mainWindow.ReduceNoiceContainerPanel.add(temp.getPanel());
-            reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA.add(temp);
-            mainWindow.ReduceNoiceRecommendCheckBox.setSelected(false);
-            mainWindow.ReduceNoiceNoCheckBox.setSelected(false);
-        }
-        else if(Objects.equals(method, "ICA")){
+        else if(Objects.equals(method, "SSA") || Objects.equals(method, "ICA")){
 
             ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = new ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA();
             temp.setLable(method);
@@ -852,11 +808,8 @@ public class MainWindow{
     }
 
     private void configTheFilesPath(FilePathDialog filePathDialog){
-        curvePath = filePathDialog.curvePath;
         matlabPath = filePathDialog.matlabPath;
         resultPath = filePathDialog.resultPath;
-        keyPath = resultPath+"\\key.txt";
-        plainPath = resultPath+"\\plain.txt";
     }
 
     private void configResultPanel() throws InterruptedException{
@@ -939,30 +892,25 @@ public class MainWindow{
                     double[] SNRReulst = staticAlign.getSNR();
                     mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));
                     mainWindow.ResultProcessedSNRLabel.setText("预处理后SNR： " + String.format("%.4f", SNRReulst[1]));
-                    double[] PIReulst = staticAlign.getPI();
-                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIReulst[0]));
-                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIReulst[1]));
+                    double[] PIResult = staticAlign.getPI();
+                    mainWindow.ResultOriginalPILabel.setText("预处理前PI： " + String.format("%.4f", PIResult[0]));
+                    mainWindow.ResultProcessedPILabel.setText("预处理后PI： " + String.format("%.4f", PIResult[1]));
                     List<double[]> SPresult = staticAlign.getSNRAndPI();
                     saveSNRAndPIResult(SPresult);
                     mainWindow.ResultPicturePanel.removeAll();
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
-                catch(InterruptedException | IOException e1){
+                catch(IOException e1){
                     e1.printStackTrace();
                 }
             });
 
             Thread alignProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("locationProcessStatusThread");
+                Thread.currentThread().setName("alignProcessStaticAlignStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(alignToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(alignToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(alignToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -992,21 +940,16 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
-                catch(InterruptedException | IOException e1){
+                catch(IOException e1){
                     e1.printStackTrace();
                 }
             });
 
             Thread alignProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("alignProcessStatusThread");
+                Thread.currentThread().setName("alignProcessDTWStatusThread");
                 try{
-                    Thread.sleep(900); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(alignToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(alignToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(alignToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1039,21 +982,16 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
-                catch(InterruptedException | IOException e1){
+                catch(IOException e1){
                     e1.printStackTrace();
                 }
             });
 
             Thread reduceNoiceProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("reduceNoiceProcessStatusThread");
+                Thread.currentThread().setName("reduceNoiceProcessFFTStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(reduceNoiceToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(reduceNoiceToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1083,21 +1021,16 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
-                catch(InterruptedException | IOException e1){
+                catch(IOException e1){
                     e1.printStackTrace();
                 }
             });
 
             Thread reduceNoiceProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("reduceNoiceProcessStatusThread");
+                Thread.currentThread().setName("reduceNoiceProcessPOCStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(reduceNoiceToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(reduceNoiceToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1127,21 +1060,16 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
-                catch(InterruptedException | IOException e1){
+                catch(IOException e1){
                     e1.printStackTrace();
                 }
             });
 
             Thread reduceNoiceProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("reduceNoiceProcessStatusThread");
+                Thread.currentThread().setName("reduceNoiceProcessKalmanFilterStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(reduceNoiceToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(reduceNoiceToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1171,7 +1099,6 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -1179,13 +1106,9 @@ public class MainWindow{
             });
 
             Thread reduceNoiceProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("ReduceNoiceProcessStatusThread");
+                Thread.currentThread().setName("ReduceNoiceProcessSSAStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(reduceNoiceToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(reduceNoiceToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1216,7 +1139,6 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
                 catch(Exception e){
                     e.printStackTrace();
@@ -1224,13 +1146,9 @@ public class MainWindow{
             });
 
             Thread reduceNoiceProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("ReduceNoiceProcessStatusThread");
+                Thread.currentThread().setName("ReduceNoiceProcessICAStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(reduceNoiceToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceNoiceToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(reduceNoiceToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1261,7 +1179,6 @@ public class MainWindow{
                 mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                 mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                 mainWindow.ResultPicturePanel.updateUI();
-                Thread.sleep(300);
             }
             catch(Exception e){
                 e.printStackTrace();
@@ -1271,11 +1188,7 @@ public class MainWindow{
         Thread reduceDimensionProcessStatusThread = new Thread(()->{
             Thread.currentThread().setName("ReduceDimensionProcessStatusThread");
             try{
-                Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                while(reduceDimensionToolBox.getProcessStatus() > 0){
-                    mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(reduceDimensionToolBox.getProcessStatus() + 1));
-                    Thread.sleep(1); //尽量小一些，保证可以读取到999
-                }
+                preprocessStatus(reduceDimensionToolBox);
             }
             catch(InterruptedException e1){
                 e1.printStackTrace();
@@ -1307,21 +1220,16 @@ public class MainWindow{
                     mainWindow.ResultPicturePanel.setLayout(new BorderLayout());
                     mainWindow.ResultPicturePanel.add(resultChartPanel, BorderLayout.CENTER);
                     mainWindow.ResultPicturePanel.updateUI();
-                    Thread.sleep(300);
                 }
-                catch(InterruptedException | IOException e1){
+                catch(IOException e1){
                     e1.printStackTrace();
                 }
             });
 
             Thread normalizationProcessStatusThread = new Thread(()->{
-                Thread.currentThread().setName("normalizationProcessStatusThread");
+                Thread.currentThread().setName("normalizationProcessZ-ScoreStatusThread");
                 try{
-                    Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
-                    while(normalizationToolBox.getProcessStatus() > 0){
-                        mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(normalizationToolBox.getProcessStatus() + 1));
-                        Thread.sleep(1); //尽量小一些，保证可以读取到999
-                    }
+                    preprocessStatus(normalizationToolBox);
                 }
                 catch(InterruptedException e1){
                     e1.printStackTrace();
@@ -1358,65 +1266,6 @@ public class MainWindow{
     }
 
     private void createReport() throws DocumentException, IOException{
-        /*com.itextpdf.text.Font titleFont = FontFactory.getFont(FontFactory.COURIER, 30, Font.BOLD, new CMYKColor(0, 255, 0, 0));
-        com.itextpdf.text.Font headFont = FontFactory.getFont(FontFactory.COURIER, 24, Font.PLAIN, new CMYKColor(255, 255, 255, 0));
-        com.itextpdf.text.Font contentFont = FontFactory.getFont(FontFactory.COURIER, 18, Font.ITALIC, new CMYKColor(255, 255, 255, 0));
-        //创建文件
-        Document document = new Document();
-        //建立一个书写器
-        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(resultPath + "\\Report.pdf"));
-        //打开文件
-        document.open();
-        ///设置属性///
-        //标题
-        document.addTitle("Preprocess Report");
-        //作者
-        document.addAuthor("Leon");
-        //主题
-        document.addSubject("Preprocess reuslt");
-        //关键字
-        document.addKeywords("Preprocess");
-        //创建时间
-        document.addCreationDate();
-        //添加标题
-        Paragraph title = new Paragraph("Preprocess Report", titleFont);
-        title.setAlignment(1);
-        document.add(title);
-        //添加内容(Method)
-        Paragraph head = new Paragraph("Used Methods", headFont);
-        document.add(title);
-        ZapfDingbatsList zapfDingbatsList = new ZapfDingbatsList(43, 30);
-        for(int i=0; i<= methodList.size()-1; i++){
-            zapfDingbatsList.add(new ListItem(methodList.get(i), contentFont));
-        }
-        document.add(zapfDingbatsList);
-        //添加内容（图像）
-        for(int i=0; i<=methodList.size()-1; i++){
-            String method = methodList.get(i);
-            method = changeToEnglish(method);
-            Paragraph content = new Paragraph("After:"+method, contentFont);
-            document.add(content);
-            content = new Paragraph("snr", contentFont);
-            title.setAlignment(1);
-            document.add(content);
-            //Add Image
-            Image image1 = Image.getInstance(resultPath+"\\snr"+i+".png");
-            //Fixed Positioning
-            image1.setAbsolutePosition(100f, 550f);
-            //Scale to new height and new width of image
-            image1.scaleAbsolute(200, 200);
-            //Add to document
-            document.add(image1);
-            content = new Paragraph("pi", contentFont);
-            title.setAlignment(1);
-            document.add(content);
-            Image image2 = Image.getInstance(resultPath+"\\pi"+i+".png");
-            image2.setAbsolutePosition(100f, 550f);
-            image2.scaleAbsolute(200, 200);
-            document.add(image2);
-        }
-        document.close();
-        writer.close();*/
         DrawCurve dc = new DrawCurve();
         BufferedImage[][] result_image = new BufferedImage[methodList.size()][4];
         for(int i=0; i<=methodList.size()-1; i++){
@@ -1436,69 +1285,12 @@ public class MainWindow{
         PIAfterResult.add(SPresult.get(3));
     }
 
-    private void makePictureToComputer(){
-        for(int i=0; i<=SNRBeforeResult.size()-1; i++){
-            double[] snrBefore = SNRBeforeResult.get(i);
-            double[] snrAfter = SNRAfterResult.get(i);
-            int[] xris = new int[snrBefore.length];
-            double[][] yris = new double[2][snrBefore.length];
-
-            assert snrAfter != null;
-            System.arraycopy(snrBefore, 0, yris[0], 0, xris.length);
-            System.arraycopy(snrAfter, 0, yris[1], 0, xris.length);
-            XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_snr", "new_snr"});
-            XYLineChart xyLineChart = new XYLineChart();
-            ChartPanel resultChartPanel = xyLineChart.getChart("Result", "Sample", "SNR", xyDataset, true);
-            JFreeChart result = resultChartPanel.getChart();
-            saveAsFile(result, resultPath + "\\snr" + i + ".png", 720, 300);
+    private void preprocessStatus(PreProcess preprocess) throws InterruptedException{
+        Thread.sleep(500); //等待locationProcessThread中excuteLocation配置好attackNumber
+        while(preprocess.getProcessStatus() > 0){
+            mainWindow.ResultProcessStatusLabel.setText("已处理条数："+(preprocess.getProcessStatus() + 1));
+            Thread.sleep(1); //尽量小一些，保证可以读取到999
         }
-        for(int i=0; i<=PIBeforeResult.size()-1; i++){
-            double[] piBefore = PIBeforeResult.get(i);
-            double[] piAfter = PIAfterResult.get(i);
-            int[] xris = new int[piBefore.length];
-            double[][] yris = new double[2][piBefore.length];
-
-            assert piAfter != null;
-            System.arraycopy(piBefore, 0, yris[0], 0, xris.length);
-            System.arraycopy(piAfter, 0, yris[1], 0, xris.length);
-            XYDataset xyDataset = ChartUtils.createXYSeries(2, xris, yris, new String[]{"original_pi", "new_pi"});
-            XYLineChart xyLineChart = new XYLineChart();
-            ChartPanel resultChartPanel = xyLineChart.getChart("Result", "Sample", "PI", xyDataset, true);
-            JFreeChart result = resultChartPanel.getChart();
-            saveAsFile(result, resultPath + "\\pi" + i + ".png", 720, 300);
-        }
-    }
-
-    private static void saveAsFile(JFreeChart chart, String outputPath,
-                                  int weight, int height) {
-        FileOutputStream out = null;
-        try {
-            File outFile = new File(outputPath);
-            if (!outFile.getParentFile().exists()) {
-                outFile.getParentFile().mkdirs();
-            }
-            out = new FileOutputStream(outputPath);
-            // 保存为PNG文件
-            ChartUtilities.writeChartAsPNG(out, chart, weight, height);
-            // 保存为JPEG文件
-            //ChartUtilities.writeChartAsJPEG(out, chart, 500, 400);
-            out.flush();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    // do nothing
-                }
-            }
-        }
-    }
-
-    private void test(){
-
     }
 
     public static void main(String[] args) throws ClassNotFoundException, UnsupportedLookAndFeelException, InstantiationException, IllegalAccessException{
@@ -1510,7 +1302,7 @@ public class MainWindow{
 
         // 初始化frame、mainwindow、methodSet、其他Panel
         mainWindow = new MainWindow();
-        frame = new JFrame("Preprocess");
+        JFrame frame = new JFrame("Preprocess");
         methodSet = new HashSet<>();
         systemRecommendOption = new boolean[5];
         locationPanel = new LocationPanel();

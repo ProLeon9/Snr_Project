@@ -1,7 +1,5 @@
 package evaluation;
 
-import panel.MainWindow;
-
 import static tools.CommonFunctions.getMax;
 import static tools.CommonFunctions.getMaxIndex;
 

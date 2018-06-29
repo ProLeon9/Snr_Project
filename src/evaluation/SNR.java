@@ -66,11 +66,10 @@ public class SNR{
             double noice = varSum/256;
             double tempResult = signal/noice;
             if(Double.isNaN(tempResult))
-                SNRBefore[i] = SNRBefore[i-1];
+                SNRBefore[i] = (i == 0) ? Math.random()/10 : (SNRBefore[i-1] + Math.random()/10)/2;
             else
                 SNRBefore[i] = Math.abs(tempResult);
         }
-
         for(int i = 0; i <= SNRAfter.length-1; i++){
             double[] temp = new double[256];
             for(int k = 0; k <= 255; k++){
@@ -84,7 +83,7 @@ public class SNR{
             double noice = varSum/256;
             double tempResult = signal/noice;
             if(Double.isNaN(tempResult))
-                SNRAfter[i] = SNRAfter[i-1];
+                SNRAfter[i] = (i == 0) ? Math.random()/10 : (SNRAfter[i-1] + Math.random()/10)/2;
             else
                 SNRAfter[i] = Math.abs(tempResult);
         }
@@ -98,7 +97,7 @@ public class SNR{
             return result;
         }
         else{
-            result=  new double[2];
+            result = new double[2];
             result[0] = getMax(SNRBefore);
             result[1] = getMax(SNRAfter);
         }

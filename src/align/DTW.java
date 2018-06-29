@@ -236,12 +236,4 @@ public class DTW extends AlignToolBox{
             F[F_flag][1] = (tmp[1]);
         }
     }
-
-    public double[] getSNR(){
-        return this.snrResult;
-    }
-
-    public double[] getPI(){
-        return this.piResult;
-    }
 }
