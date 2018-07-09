@@ -8,5 +8,5 @@ import java.io.IOException;
 
 
 public abstract class NormalizationToolBox extends PreProcess{
-    public abstract ChartPanel excuteNormalization(ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore, String resultPath, String lastMethod) throws IOException;
+        public abstract ChartPanel excuteNormalization(ReduceNoiceFFTAndNormalizationZScore reduceNoiceFFTAndNormalizationZScore, String resultPath, String lastMethod) throws IOException;
 }

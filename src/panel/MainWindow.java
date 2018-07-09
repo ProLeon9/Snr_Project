@@ -462,6 +462,12 @@ public class MainWindow{
                 }
 
                 // TODO:具体执行预处理过程
+
+                //防止点击取消后方法仍在methodSet中
+                if(methodList == null){
+                    methodSet = new HashSet<>();
+                }
+
                 for(int i=0; i<=methodList.size()-1; i++){
                     String factoryName = makeSureUseWhichFactory(methodList.get(i));
                     excutePreprocessDependsOnFactoryName(factoryName, methodList.get(i));
