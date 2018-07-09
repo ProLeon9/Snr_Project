@@ -463,7 +463,7 @@ public class MainWindow{
 
                 // TODO:具体执行预处理过程
 
-                //防止点击取消后方法仍在methodSet中
+                //防止点击取消后方法仍在methodSet中出现
                 if(methodList == null){
                     methodSet = new HashSet<>();
                 }
