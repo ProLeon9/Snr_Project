@@ -16,6 +16,7 @@ import reducedimension.ReduceDimensionToolBox;
 import reducenoice.*;
 import tools.DrawCurve;
 import tools.GenerateReoport;
+import tools.GetRoute;
 import tools.PreProcess;
 
 import javax.swing.*;
@@ -88,6 +89,9 @@ public class MainWindow {
     private JPanel LocationComboboxPanel;
     private JPanel NormalizationComboBoxPanel;
     private JLabel ResultProcessStatusLabel;
+    private JButton normal_button;
+    private JButton compress_button;
+    private JButton notrigger_button;
 
     private static MainWindow mainWindow;
     private static String matlabPath;
@@ -527,6 +531,39 @@ public class MainWindow {
                 // 设置文本显示效果
                 UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
                 JOptionPane.showMessageDialog(null, "标准化操作模块：选择标准化方法，并输入相应参数后，点击运行进行顺序选择\n" + "  注意：需要自行输入的数字全部要求是非负整数（也可以不选择标准化方法）");
+            }
+        });
+        normal_button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked (MouseEvent e) {
+                try {
+                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + new GetRoute().realPath + "\\help\\SNR_IntroBook.pdf");
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        compress_button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked (MouseEvent e) {
+                try {
+                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + new GetRoute().realPath + "\\help\\SNR_TechBook.pdf");
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        notrigger_button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked (MouseEvent e) {
+                try {
+                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + new GetRoute().realPath + "\\help\\SNR_TestBook.pdf");
+                }
+                catch (IOException e1) {
+                    e1.printStackTrace();
+                }
             }
         });
     }
