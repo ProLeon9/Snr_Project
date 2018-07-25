@@ -38,10 +38,10 @@ public class ICA extends ReduceNoiceToolBox{
         }
     }
 
-    public ChartPanel excuteReduceNoice(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA, String resultPath, String lastMethod, String matlabPath) throws Exception{
+    public ChartPanel excuteReduceNoice(ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA, String resultPath, String lastMethod, String matlabPath, String icaPath) throws Exception{
         getParametersFromPanel(reduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA);
         BufferedReader curveReader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+".txt"));
-        BufferedReader curve2Reader = new BufferedReader(new FileReader(resultPath+"\\"+lastMethod+"1.txt"));
+        BufferedReader curve2Reader = new BufferedReader(new FileReader(icaPath));
         BufferedWriter resultWriter = new BufferedWriter(new FileWriter(resultPath+"\\ICA_old1.txt"));
         BufferedWriter result2Writer = new BufferedWriter(new FileWriter(resultPath+"\\ICA_old2.txt"));
 

@@ -22,6 +22,7 @@ import tools.PreProcess;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -96,6 +97,7 @@ public class MainWindow {
     private static MainWindow mainWindow;
     private static String matlabPath;
     private static String resultPath;
+    private static String icaPath;
     private static ChartPanel resultChartPanel;
     private static Set<String> methodSet;   //存放用户选择的预处理方法
     private static List<String> methodList;   //存放将要使用的预处理方法
@@ -439,6 +441,9 @@ public class MainWindow {
         ReduceDimensionRunButton.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked (MouseEvent e) {
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "注意：如果在执行曲线压缩预处理过程中，matalb命令行窗口提示找不到合适的特征点，那么就要调整压缩后点数！");
                 tabbedPane1.setSelectedIndex(4);
             }
         });
@@ -564,6 +569,14 @@ public class MainWindow {
                 catch (IOException e1) {
                     e1.printStackTrace();
                 }
+            }
+        });
+        FFTCheckBox.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked (MouseEvent e) {
+                // 设置文本显示效果
+                UIManager.put("OptionPane.messageFont", new FontUIResource(new Font("宋体", Font.ITALIC, 21)));
+                JOptionPane.showMessageDialog(null, "注意：FFT会使曲线点数减半，如果组合方法中含有FFT，那么后续的预处理方法的点数一定要设置为FFT处理点数的一半！");
             }
         });
     }
@@ -844,6 +857,7 @@ public class MainWindow {
     private void configTheFilesPath (FilePathDialog filePathDialog) {
         matlabPath = filePathDialog.matlabPath;
         resultPath = filePathDialog.resultPath;
+        icaPath = filePathDialog.ICAPath;
     }
 
     private void configResultPanel () throws InterruptedException {
@@ -1163,7 +1177,7 @@ public class MainWindow {
                 ReduceDimensionPCAAndLLEAndKPCAAndReduceNoiceSSAAndICA temp = searchPCAAndSSAPanel("ICA");
                 Thread.currentThread().setName("ReduceNoiceProcessThread");
                 try {
-                    resultChartPanel = ica.excuteReduceNoice(temp, resultPath, lastMethod, matlabPath);
+                    resultChartPanel = ica.excuteReduceNoice(temp, resultPath, lastMethod, matlabPath, icaPath);
                     lastMethod = "ICA";
                     double[] SNRReulst = ica.getSNR();
                     mainWindow.ResultOriginalSNRLabel.setText("预处理前SNR： " + String.format("%.4f", SNRReulst[0]));

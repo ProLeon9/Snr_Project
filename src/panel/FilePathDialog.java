@@ -15,11 +15,15 @@ public class FilePathDialog extends JDialog{
     private JTextField ResultPathTextField;
     private JButton CurvePathOpenButton;
     private JButton ResultPathOpenButton;
+    private JButton ICACurvePathOpenButton;
+    private JTextField ICACurvePathTextField;
+    private JPanel ICAPathPanel;
 
     public String curvePath;
     public String resultPath;
     public String matlabPath;
     public String lastPath;
+    public String ICAPath;
 
     public FilePathDialog(){
         setContentPane(contentPane);
@@ -76,6 +80,13 @@ public class FilePathDialog extends JDialog{
             public void mouseClicked(MouseEvent e){
                 matlabPath = GetPath("file", null);
                 MatlabPathTextField.setText(matlabPath);
+            }
+        });
+        ICACurvePathOpenButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked (MouseEvent e) {
+                ICAPath = GetPath("file", lastPath);
+                ICACurvePathTextField.setText(ICAPath);
             }
         });
     }
